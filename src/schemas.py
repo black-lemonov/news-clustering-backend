@@ -7,6 +7,7 @@ class SummaryScheme(BaseModel):
     title: str
     summary: str
     created_at: datetime
+    cluster_n: int
     
     
 class Pagination(BaseModel):

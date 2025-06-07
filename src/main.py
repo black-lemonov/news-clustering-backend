@@ -46,7 +46,8 @@ async def get_all_summaries(
         select(
             News.title,
             Summary.content,
-            News.published_at
+            News.published_at,
+            News.cluster_n
         )
         .join(Summary.news)
     )
@@ -58,7 +59,8 @@ async def get_all_summaries(
             SummaryScheme(
                 title=row.title, 
                 summary=row.content, 
-                created_at=row.published_at
+                created_at=row.published_at,
+                cluster_n=row.cluster_n
             )
             for row in all_news_w_summary[offset_min:offset_max]
         ],
@@ -86,7 +88,7 @@ async def get_news_in_cluster_by_id(id: int, session: SessionDep) -> SummaryWith
         select(
             News.title,
             Summary.content,
-            News.published_at
+            News.published_at,
         )
         .join(Summary.news)
         .where(News.cluster_n == id)
@@ -97,6 +99,7 @@ async def get_news_in_cluster_by_id(id: int, session: SessionDep) -> SummaryWith
         title=summary.title,
         summary=summary.content,
         created_at=summary.published_at,
+        cluster_n=id,
         news=[
             SourceScheme(
                 url=row.url,
