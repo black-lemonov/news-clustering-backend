@@ -8,15 +8,15 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 
-from config import PARSING_INTERVAL
 from background_task import start_background_task
 from database import get_session, News
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # await init_db()
     asyncio.create_task(
-        start_background_task(PARSING_INTERVAL)
+        start_background_task()
     ) 
     yield
     
@@ -58,6 +58,5 @@ def rate_summary(id: int, rate: int):
 
 
 if __name__ == "__main__":
-    # asyncio.run(init_db())
     uvicorn.run("main:app", reload=True)
     
