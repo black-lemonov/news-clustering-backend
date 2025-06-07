@@ -30,6 +30,8 @@ MIN_DF = 1
 EPS = 1.17
 MIN_SAMPLES = 1
 
-CLUSTER_TTL = timedelta(days=10)
+CLUSTER_TTL = timedelta(seconds=10)
 
 PARSING_INTERVAL = 3600
+
+SUMMARY_SHRINK = 2

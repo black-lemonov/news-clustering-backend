@@ -22,7 +22,7 @@ class News(Base):
     title: Mapped[str]
     published_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
     content: Mapped[str]
-    cluster_n: Mapped[int | None]
+    cluster_n: Mapped[int | None] = mapped_column(index=True)
     
     summary = relationship(
         "Summary",

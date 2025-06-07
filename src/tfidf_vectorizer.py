@@ -1,9 +1,11 @@
 from string import punctuation
 
+import nltk
 from nltk import SnowballStemmer
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+nltk.download("stopwords")
 
 class StemmedTfidfVectorizer(TfidfVectorizer):
     """
