@@ -1,73 +1,49 @@
 from typing import Optional
 from contextlib import asynccontextmanager
 
-from sqlalchemy import ForeignKey, func
+from sqlalchemy import ForeignKey, func, DateTime
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from datetime import datetime
 
 import asyncio
 
-from datetime import datetime, timezone
+from datetime import datetime
 
 
 class Base(DeclarativeBase):
     pass
 
+
 class News(Base):
     __tablename__ = "news"
     
-    url: Mapped[str] = mapped_column(primary_key=True)
+    url: Mapped[str] = mapped_column(primary_key=True, index=True)
     title: Mapped[str]
-    published_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    published_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
     content: Mapped[str]
+    cluster_n: Mapped[int | None]
     
-    cluster_id: Mapped[int | None] = mapped_column(
-        ForeignKey("cluster.id", ondelete="SET NULL")
-    )
-    cluster: Mapped[Optional["Cluster"]] = relationship(
-        back_populates="news_items",
-        cascade="save-update, merge"
-    )
-    
-    summary: Mapped[Optional["Summary"]] = relationship(
+    summary = relationship(
+        "Summary",
         back_populates="news",
-        uselist=False,
         cascade="all, delete-orphan"
     )
-
-class Cluster(Base):
-    __tablename__ = "cluster"
     
-    id: Mapped[int] = mapped_column(primary_key=True)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now()
-    )
-    
-    # Опционально: ссылка на главную новость
-    main_news_url: Mapped[Optional[str]] = mapped_column(
-        ForeignKey("news.url", ondelete="SET NULL")
-    )
-    
-    # Отношение ко всем новостям кластера
-    news_items: Mapped[list["News"]] = relationship(
-        back_populates="cluster",
-        cascade="save-update, merge, expunge"
-    )
 
 class Summary(Base):
     __tablename__ = "summary"
     
     news_url: Mapped[str] = mapped_column(
-        ForeignKey("news.url", ondelete="CASCADE"), 
+        ForeignKey("news.url", ondelete="CASCADE", onupdate='CASCADE'), 
         primary_key=True
     )
     content: Mapped[str]
     positive_rates: Mapped[int] = mapped_column(default=0)
     negative_rates: Mapped[int] = mapped_column(default=0)
     
-    news: Mapped["News"] = relationship(
+    news = relationship(
+        "News",
         back_populates="summary",
         single_parent=True
     )
