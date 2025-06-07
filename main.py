@@ -1,66 +1,27 @@
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import FastAPI, Depends
-from sqlalchemy import ForeignKey
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from datetime import datetime
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 import asyncio
+from contextlib import asynccontextmanager
 
 import uvicorn
 
-engine = create_async_engine("sqlite+aiosqlite:///news.db")
-
-news_session = async_sessionmaker(engine, expire_on_commit=False)
-
-
-async def get_session():
-    async with news_session() as session:
-        yield session
+from config import PARSING_INTERVAL
+from background_task import start_background_task
+from database import get_session, News
 
 
-class Base(DeclarativeBase):
-    pass
-
-
-class News(Base):
-    __tablename__ = "news"
-    
-    url: Mapped[str] = mapped_column(primary_key=True)
-    title: Mapped[str]
-    published_at: Mapped[datetime]
-    content: Mapped[str]
-    cluster_id: Mapped[int | None] = mapped_column(ForeignKey("cluster.id"))
-    summary: Mapped[Optional["Summary"]] = relationship(back_populates="news")
-    cluster: Mapped[Optional["Cluster"]] = relationship(back_populates="news")
-    
-    
-class Summary(Base):
-    __tablename__ = "summary"
-    
-    news_url: Mapped[str] = mapped_column(ForeignKey("news.url"), primary_key=True)
-    content: Mapped[str]
-    positive_rates: Mapped[int] = 0
-    negative_rates: Mapped[int] = 0
-    news: Mapped["News"] = relationship(back_populates="summary")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    asyncio.create_task(
+        start_background_task(PARSING_INTERVAL)
+    ) 
+    yield
     
 
-class Cluster(Base):
-    __tablename__ = "cluster"
-    
-    id: Mapped[int] = mapped_column(primary_key=True)
-    created_at: Mapped[datetime] = datetime.now()
-    news: Mapped["News"] = relationship(back_populates="cluster")
-
-    
-    
-async def init_db():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-        await conn.run_sync(Base.metadata.create_all)
-
-
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
 
@@ -70,8 +31,10 @@ SessionDep = Annotated[AsyncSession, Depends(get_session)]
     tags=["Новости"],
     summary="Получить список новостей",
 )
-def get_news(session: SessionDep):
-    return {}
+async def get_news(session: SessionDep):
+    query = select(News)
+    result = await session.execute(query)
+    return result.scalars().all()
 
 
 @app.get(
@@ -79,13 +42,15 @@ def get_news(session: SessionDep):
     tags=["Кластеры"],
     summary="Получить новости из кластера по id",
 )
-def get_cluster_by_id(id: int):
-    return {}
+async def get_cluster_by_id(id: int, session: SessionDep):
+    query = select(News).where(News.cluster_n == id)
+    result = await session.execute(query)
+    return result.scalars().all()
 
 
 @app.put(
     "/cluster/{id}",
-    tags=["Кластеры"],
+    tags=["Рефераты"],
     summary="Оценить пересказ",
 )
 def rate_summary(id: int, rate: int):
@@ -93,5 +58,6 @@ def rate_summary(id: int, rate: int):
 
 
 if __name__ == "__main__":
-    asyncio.run(init_db())
+    # asyncio.run(init_db())
     uvicorn.run("main:app", reload=True)
+    
