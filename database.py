@@ -1,21 +1,12 @@
 from typing import Optional
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
 from sqlalchemy import ForeignKey
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from datetime import datetime
 
-
-engine = create_async_engine("sqlite+aiosqlite:///news.db")
-
-session_factory = async_sessionmaker(engine, expire_on_commit=False)
-
-
-async def get_session():
-    async with session_factory() as session:
-        yield session
+import asyncio
 
 
 class Base(DeclarativeBase):
@@ -27,29 +18,54 @@ class News(Base):
     
     url: Mapped[str] = mapped_column(primary_key=True)
     title: Mapped[str]
-    published_at: Mapped[datetime]
+    published_at: Mapped[str]
     content: Mapped[str]
-    cluster_id: Mapped[int | None] = mapped_column(ForeignKey("cluster.id"))
-    summary: Mapped[Optional["Summary"]] = relationship(back_populates="news")
-    cluster: Mapped[Optional["Cluster"]] = relationship(back_populates="news")
+    cluster_id: Mapped[int | None] = mapped_column(
+        ForeignKey("cluster.id")
+    )
+    cluster: Mapped[Optional["Cluster"]] = relationship(
+        back_populates="news"
+    )
+    summary: Mapped[Optional["Summary"]] = relationship(
+        back_populates="news"
+    )
     
     
-class Summary(Base):
-    __tablename__ = "summary"
-    
-    news_url: Mapped[str] = mapped_column(ForeignKey("news.url"), primary_key=True)
-    content: Mapped[str]
-    positive_rates: Mapped[int] = 0
-    negative_rates: Mapped[int] = 0
-    news: Mapped["News"] = relationship(back_populates="summary")
-    
-
 class Cluster(Base):
     __tablename__ = "cluster"
     
     id: Mapped[int] = mapped_column(primary_key=True)
-    created_at: Mapped[datetime] = datetime.now()
-    news: Mapped["News"] = relationship(back_populates="cluster")
+    created_at: Mapped[str] = mapped_column(default=datetime.now().isoformat())
+    news_url: Mapped[str] = mapped_column(
+        ForeignKey("news.url")
+    )
+    news: Mapped[Optional["News"]] = relationship(
+        back_populates="cluster"
+    )
+
+    
+class Summary(Base):
+    __tablename__ = "summary"
+    
+    news_url: Mapped[str] = mapped_column(
+        ForeignKey("news.url"), primary_key=True
+    )
+    content: Mapped[str]
+    positive_rates: Mapped[int] = mapped_column(default=0)
+    negative_rates: Mapped[int] = mapped_column(default=0)
+    
+    news: Mapped[Optional["News"]] = relationship(
+        back_populates="summary"
+    )
+    
+
+engine = create_async_engine("sqlite+aiosqlite:///news.db")
+session_factory = async_sessionmaker(engine, expire_on_commit=False)
+
+
+async def get_session():
+    async with session_factory() as session:
+        yield session
 
     
 async def init_db():
@@ -68,4 +84,7 @@ async def session_scope():
         await session.rollback()
     finally:
         await session.close()
-        
+
+
+if __name__ == "__main__":
+    asyncio.run(init_db())
