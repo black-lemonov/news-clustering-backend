@@ -1,1 +1,4 @@
 .venv
+*.db
+poetry.lock
+__pycache__
