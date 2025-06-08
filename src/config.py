@@ -19,7 +19,7 @@ PARSERS = [
     "url_selector": "div.node--description a::attr(href)",
     "date_selector": "div.date::text",
     "content_selector": "div.article-content > p::text",
-    "stop_words": ["ТОП", "Гороскоп"],
+    "stop_words": ["ТОП", "Гороскоп", "пока вы"],
     "parse_interval_sec": 10.0,
     "articles_buffer_size": 30
   }
@@ -34,7 +34,7 @@ CLUSTER_TTL = timedelta(seconds=10)
 
 PARSING_INTERVAL = 3600
 
-SUMMARY_SHRINK = 2
+SUMMARY_SIZE = 3
 
 LOG_LEVEL = "DEBUG"
 

@@ -7,7 +7,6 @@ import dateparser
 import httpx
 from scrapy import Selector
 
-from src.config import PARSERS
 from src.database import session_scope
 from src.dependencies import get_logger
 from src.services.news_service import add_news
@@ -146,11 +145,3 @@ class NewsParser:
     def __save_to_buffer(self) -> None:
         self.__articles_buffer.extend(self.__tmp_buffer)
         self.__clear_tmp_buffer()
-
-parsers = [
-    NewsParser(**config)
-    for config in PARSERS
-]
-
-async def run_parsers():
-    await asyncio.gather(*[p.parse() for p in parsers]) 
