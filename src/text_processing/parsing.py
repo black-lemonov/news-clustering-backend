@@ -1,20 +1,18 @@
-from logging import getLogger
-
-logger = getLogger()
-
-from dataclasses import dataclass
-
 import asyncio
-import datetime
 from collections import deque
-from typing import final
+from dataclasses import dataclass
+from datetime import datetime
+from logging import getLogger
 
 import dateparser
 import httpx
 from scrapy import Selector
 
-from database import session_scope, News
-from config import PARSERS
+from src.config import PARSERS
+from src.database import session_scope
+from src.services.news_service import add_news
+
+logger = getLogger(__name__)
 
 
 @dataclass
@@ -22,10 +20,9 @@ class Article:
     url: str
     title: str
     content: str
-    date: datetime.datetime
+    date: datetime
 
 
-@final
 class NewsParser:
     def __init__(
             self,
@@ -97,7 +94,7 @@ class NewsParser:
     def __get_title(self, selector) -> str:
         return selector.css(self.__title_selector).get().strip()
 
-    def __get_date(self, selector) -> datetime.datetime:
+    def __get_date(self, selector) -> datetime:
         raw_date = selector.css(self.__date_selector).get().strip()
         return self.__format_date(raw_date)
 
@@ -108,13 +105,13 @@ class NewsParser:
         self.__tmp_buffer.clear()
 
     def __is_spam(self, title: str) -> bool:
-        return title in self.__stop_words
+        return any([word in title for word in self.__stop_words])
 
     def __save_to_tmp_buffer(self, url: str) -> None:
         self.__tmp_buffer.appendleft(url)
 
     @staticmethod
-    def __format_date(date: str) -> datetime.datetime:
+    def __format_date(date: str) -> datetime:
         return dateparser.parse(date, languages=["ru"], settings={'DATE_ORDER': 'DMY'})
 
     async def __wait_parse_interval(self):
@@ -138,13 +135,12 @@ class NewsParser:
 
     async def __save_to_db(self, article: Article) -> None:
         async with session_scope() as session:
-            session.add(
-                News(
-                    url=article.url,
-                    title=article.title,
-                    published_at=article.date,
-                    content=article.content
-                )
+            add_news(
+                session,
+                url=article.url,
+                title=article.title,
+                published_at=article.date,
+                content=article.content
             )
 
     def __save_to_buffer(self) -> None:

@@ -1,36 +1,26 @@
-from datetime import datetime
-
-from sqlalchemy import select, or_, func
 import asyncio
 from sklearn.cluster import DBSCAN
 
-from database import session_scope, News, Summary
-from config import MAX_DF, MIN_DF, EPS, MIN_SAMPLES
-from tfidf_vectorizer import StemmedTfidfVectorizer
-from summarization import summarize
+from src.database import session_scope
+from src.config import MAX_DF, MIN_DF, EPS, MIN_SAMPLES
+from src.services.news_service import get_all_news_urls, get_news_content_by_urls, set_cluster_n
+from src.services.summary_service import add_summary
+from src.text_processing.tfidf_vectorizer import StemmedTfidfVectorizer
+from src.text_processing.summarization import summarize
 
 
 async def run_clustering():
     async with session_scope() as session:
-        query = (
-            select(News)
-        )
-        
-        all_news = (
-            await session.execute(query)
-        )
+        news_urls = await get_all_news_urls(session)
         
         vectorizer = StemmedTfidfVectorizer(
             max_df=MAX_DF,
             min_df=MIN_DF,
             decode_error="ignore"
         )
-        
-        all_news = all_news.scalars().all()
-        
-        vectors = vectorizer.fit_transform(
-            [row.content for row in all_news]
-        )
+
+        news_content = await get_news_content_by_urls(session, news_urls)
+        vectors = vectorizer.fit_transform(news_content)
 
         dbscan = DBSCAN(
             eps=EPS,
@@ -39,17 +29,19 @@ async def run_clustering():
         
         clusters_labels = dbscan.fit_predict(vectors)
         have_summary = set()
-        for label, news in zip(clusters_labels, all_news):
-            news.cluster_n = int(label)
-            if int(label) in have_summary:
+        for label, url, content in zip(clusters_labels, news_urls, news_content):
+            label = int(label)
+            await set_cluster_n(session, url, label)
+
+            if label in have_summary:
                 continue
-            session.add(
-                Summary(
-                    news_url=news.url,
-                    content=summarize(news.content)
-                )
+
+            add_summary(
+                session,
+                url,
+                summarize(content)
             )
-            have_summary.add(int(label))
+            have_summary.add(label)
             
 
 if __name__ == "__main__":

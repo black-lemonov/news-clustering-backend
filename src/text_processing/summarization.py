@@ -3,7 +3,7 @@ from sumy.nlp.tokenizers import Tokenizer
 from sumy.summarizers.text_rank import TextRankSummarizer
 from razdel import sentenize
 
-from config import SUMMARY_SHRINK
+from src.config import SUMMARY_SHRINK
 
 
 def summarize(text: str):
