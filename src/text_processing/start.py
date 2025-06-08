@@ -9,6 +9,6 @@ async def start_background_task():
     """Запуск приложения каждые period секунд"""
     
     while True:
-        # await run_parsers()
+        await run_parsers()
         await run_clustering()
         await asyncio.sleep(PARSING_INTERVAL)

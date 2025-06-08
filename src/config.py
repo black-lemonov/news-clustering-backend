@@ -8,7 +8,7 @@ PARSERS = [
     "url_selector": "a.news-card-title::attr(href)",
     "date_selector": "div.news-card-head div.news-card-date::text",
     "content_selector": "div[itemprop=\"description\"] > p::text",
-    "stop_words": [],
+    "stop_words": ["ТОП", "Гороскоп"],
     "parse_interval_sec": 10.0,
     "articles_buffer_size": 30
   },
@@ -19,7 +19,7 @@ PARSERS = [
     "url_selector": "div.node--description a::attr(href)",
     "date_selector": "div.date::text",
     "content_selector": "div.article-content > p::text",
-    "stop_words": [],
+    "stop_words": ["ТОП", "Гороскоп"],
     "parse_interval_sec": 10.0,
     "articles_buffer_size": 30
   }
