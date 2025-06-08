@@ -1,53 +1,11 @@
-from typing import Optional
 from contextlib import asynccontextmanager
 
-from sqlalchemy import ForeignKey, func, DateTime
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from datetime import datetime
 
 import asyncio
 
-from datetime import datetime
+from src.models.base import Base
 
-
-class Base(DeclarativeBase):
-    pass
-
-
-class News(Base):
-    __tablename__ = "news"
-    
-    url: Mapped[str] = mapped_column(primary_key=True, index=True)
-    title: Mapped[str]
-    published_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
-    content: Mapped[str]
-    cluster_n: Mapped[int | None] = mapped_column(index=True)
-    
-    summary = relationship(
-        "Summary",
-        back_populates="news",
-        cascade="all, delete-orphan"
-    )
-    
-
-class Summary(Base):
-    __tablename__ = "summary"
-    
-    news_url: Mapped[str] = mapped_column(
-        ForeignKey("news.url", ondelete="CASCADE", onupdate='CASCADE'), 
-        primary_key=True
-    )
-    content: Mapped[str]
-    positive_rates: Mapped[int] = mapped_column(default=0)
-    negative_rates: Mapped[int] = mapped_column(default=0)
-    
-    news = relationship(
-        "News",
-        back_populates="summary",
-        single_parent=True
-    )
-    
 
 engine = create_async_engine("sqlite+aiosqlite:///news.db")
 session_factory = async_sessionmaker(engine, expire_on_commit=False)
