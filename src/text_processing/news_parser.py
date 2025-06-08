@@ -8,10 +8,7 @@ import httpx
 from scrapy import Selector
 
 from src.database import session_scope
-from src.dependencies import get_logger
 from src.services.news_service import add_news
-
-logger = get_logger()
 
 
 @dataclass
@@ -47,11 +44,11 @@ class NewsParser:
         self.__tmp_buffer: deque[str] = deque(maxlen=articles_buffer_size)  # здесь будут все новости с одной страницы
 
     async def parse(self) -> None:
-        logger.info("Отправляю запрос к %s ...", self.__site_url)
+        print("Отправляю запрос к %s ...", self.__site_url)
         async with httpx.AsyncClient() as client:
             articles = await self.__try_get_articles_from_main_page(client)
             if articles is None:
-                logger.info(f"Ничего не запарсено: {self.__site_url} .")
+                print(f"Ничего не запарсено: {self.__site_url} .")
                 return
 
             for a in articles:
@@ -70,7 +67,7 @@ class NewsParser:
 
                 await self.__wait_parse_interval()
 
-                logger.info("Отправляю запрос к %s ...", self.__site_url)
+                print("Отправляю запрос к %s ...", self.__site_url)
                 content = await self.__try_get_article_content(client, url)
 
                 await self.__save_to_db(
@@ -85,7 +82,7 @@ class NewsParser:
             ).raise_for_status().text
             return Selector(text=main_page).css(self.__article_selector)
         except httpx.HTTPError as e:
-            logger.error("Ошибка при парсинге %s: %s", self.__site_url, e)
+            print("Ошибка при парсинге %s: %s", self.__site_url, e)
 
     def __get_url(self, selector) -> str:
         return selector.css(self.__url_selector).get().strip()
@@ -124,13 +121,18 @@ class NewsParser:
             selector = Selector(text=article)
             return self.__get_content(selector)
         except httpx.HTTPError as e:
-            logger.error("Ошибка при парсинге %s: %s", self.__site_url, e)
+            print("Ошибка при парсинге %s: %s", self.__site_url, e)
             self.__clear_tmp_buffer()
 
     def __get_content(self, selector) -> str:
-        return ' '.join(
-            [ p.strip() for p in selector.css(self.__content_selector).getall() ]
+        selected_content = [
+            p.strip() for p in selector.css(self.__content_selector).getall()
+        ]
+        res = ' '.join(
+            [text for text in selected_content if len(text) > 25 and "сообщала ранее" not in text]
         )
+        print(res)
+        return res
 
     async def __save_to_db(self, article: Article) -> None:
         async with session_scope() as session:
