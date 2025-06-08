@@ -1,11 +1,11 @@
 import asyncio
 from sklearn.cluster import DBSCAN
 
-from src.models.summary import Summary
 from src.dependencies import get_logger
 from src.database import session_scope
 from src.config import MAX_DF, MIN_DF, EPS, MIN_SAMPLES
 from src.services.news_service import get_all_news_urls, get_news_content_by_urls, set_cluster_n
+from src.services.summary_service import add_summary, check_if_summary_exist
 from src.text_processing.tfidf_vectorizer import StemmedTfidfVectorizer
 from src.text_processing.summarization import summarize
 
@@ -43,18 +43,18 @@ async def run_clustering():
 
             if label in have_summary:
                 continue
-            
-            session.add(
-                Summary(
-                    news_url=url,
-                    content=summarize(content)
+
+            if not (await check_if_summary_exist(session, url)):
+                add_summary(
+                    session,
+                    url,
+                    summarize(content)
                 )
-            )
+
             have_summary.add(label)
-        
+
         logger.info("Записи в БД обновлены")
         
-            
 
 if __name__ == "__main__":
     asyncio.run(run_clustering())

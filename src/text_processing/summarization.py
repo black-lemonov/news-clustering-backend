@@ -6,10 +6,10 @@ from razdel import sentenize
 from src.config import SUMMARY_SHRINK
 
 
-def summarize(text: str):
+def summarize(text: str) -> str:
     sentences_in_source = len([sent for sent in sentenize(text)])
     sentences_in_summary = sentences_in_source // SUMMARY_SHRINK
-    
+
     parser = PlaintextParser.from_string(text, Tokenizer("russian"))
     summarizer = TextRankSummarizer()
     summary = summarizer(parser.document, sentences_in_summary)

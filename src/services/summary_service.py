@@ -77,3 +77,21 @@ async def get_summary_with_sources(session: AsyncSession, cluster_n: int) -> tup
         SourceScheme(url=row.url, title=row.title)
         for row in sources_result.all()
     ]
+
+
+async def check_if_summary_exist(session: AsyncSession, news_url: str) -> bool:
+    query = (
+        select(Summary)
+        .where(Summary.news_url == news_url)
+    )
+    summary = (await session.execute(query)).first()
+
+    return summary is not None
+
+
+def add_summary(session: AsyncSession, news_url: str, summary: str) -> None:
+    summary = Summary(
+        news_url=news_url,
+        content=summary
+    )
+    session.add(summary)
