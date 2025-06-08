@@ -1,4 +1,4 @@
-from sqlalchemy import select, func
+from sqlalchemy import select, func, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.news import News
@@ -40,6 +40,7 @@ async def get_paginated_summaries(
         )
         .join(Summary.news)
         .where(News.cluster_n.is_not(None))
+        .order_by(desc(News.published_at))
         .offset(offset)
         .limit(size)
     )
