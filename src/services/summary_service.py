@@ -77,12 +77,3 @@ async def get_summary_with_sources(session: AsyncSession, cluster_n: int) -> tup
         SourceScheme(url=row.url, title=row.title)
         for row in sources_result.all()
     ]
-
-
-def add_summary(session: AsyncSession, news_url: str, summary: str) -> None:
-    session.add(
-        Summary(
-            news_url=news_url,
-            content=summary
-        )
-    )
