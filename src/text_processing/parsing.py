@@ -2,7 +2,6 @@ import asyncio
 from collections import deque
 from dataclasses import dataclass
 from datetime import datetime
-from logging import getLogger
 
 import dateparser
 import httpx
@@ -10,9 +9,10 @@ from scrapy import Selector
 
 from src.config import PARSERS
 from src.database import session_scope
+from src.dependencies import get_logger
 from src.services.news_service import add_news
 
-logger = getLogger(__name__)
+logger = get_logger()
 
 
 @dataclass

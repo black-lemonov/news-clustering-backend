@@ -35,3 +35,34 @@ CLUSTER_TTL = timedelta(seconds=10)
 PARSING_INTERVAL = 3600
 
 SUMMARY_SHRINK = 2
+
+LOG_LEVEL = "INFO"
+
+LOGGING_CONFIG = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "default": {
+            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
+    },
+    "handlers": {
+        "default_console": {
+            "class": "logging.StreamHandler",
+            "formatter": "default",
+            "stream": "ext://sys.stdout",
+        },
+    },
+    "loggers": {
+        "app": {
+            "handlers": ["default_console"],
+            "level": LOG_LEVEL,
+            "propagate": False,
+        },
+    },
+    "root": {
+        "handlers": ["default_console"],
+        "level": "WARNING",
+    },
+}
