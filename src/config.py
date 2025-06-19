@@ -19,7 +19,7 @@ PARSERS = [
     "url_selector": "div.node--description a::attr(href)",
     "date_selector": "div.date::text",
     "content_selector": "div.article-content > p::text",
-    "stop_words": ["ТОП", "Гороскоп", "пока вы"],
+    "stop_words": ["ТОП", "Гороскоп", "пока вы", "Сроки действия акции", "Акция"],
     "parse_interval_sec": 10.0,
     "articles_buffer_size": 30
   }

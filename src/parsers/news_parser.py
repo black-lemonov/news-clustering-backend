@@ -123,7 +123,6 @@ class NewsParser:
         res = ' '.join(
             [text for text in selected_content if len(text) > 25 and "сообщала ранее" not in text]
         )
-        print(res)
         return res
 
     async def __save_to_db(self, article: Article) -> None:
