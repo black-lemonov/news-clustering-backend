@@ -62,6 +62,15 @@ class NewsParser:
                 print("Отправляю запрос к %s ...", self.__site_url)
                 content = await self.__try_get_article_content(client, url)
 
+                if content is None:
+                    continue
+
+                if self.__is_spam(content):
+                    # Это спам
+                    continue
+
+                print(content)
+
                 await self.__save_to_db(
                     Article(url, title, content, date)
                 )
@@ -93,7 +102,7 @@ class NewsParser:
         self.__tmp_buffer.clear()
 
     def __is_spam(self, title: str) -> bool:
-        return any([word in title for word in self.__stop_words])
+        return any([word.lower() in title.lower() for word in self.__stop_words])
 
     def __save_to_tmp_buffer(self, url: str) -> None:
         self.__tmp_buffer.appendleft(url)
