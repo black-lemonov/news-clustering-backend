@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.news import News
 from src.models.summary import Summary
-from src.schemas.summaries import SourceScheme
+from src.dto.summaries import SourceScheme
 
 
 async def get_cluster_news_urls(session: AsyncSession, cluster_n: int) -> list[str]:

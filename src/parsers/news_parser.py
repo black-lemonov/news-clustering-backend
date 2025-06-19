@@ -1,6 +1,5 @@
 import asyncio
 from collections import deque
-from dataclasses import dataclass
 from datetime import datetime
 
 import dateparser
@@ -8,15 +7,8 @@ import httpx
 from scrapy import Selector
 
 from src.database import session_scope
+from src.dto.article import Article
 from src.services.news_service import add_news
-
-
-@dataclass
-class Article:
-    url: str
-    title: str
-    content: str
-    date: datetime
 
 
 class NewsParser:

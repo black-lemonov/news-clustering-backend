@@ -4,12 +4,12 @@ from typing import Annotated
 from fastapi import APIRouter, Query, HTTPException
 
 from src.dependencies import SessionDep
-from src.schemas.base import Pagination
-from src.schemas.summaries import SummarySchemeWithPagination, SummaryScheme, SummaryWithSourcesScheme
+from src.dto.base import Pagination
+from src.dto.summaries import SummarySchemeWithPagination, SummaryScheme, SummaryWithSourcesScheme
 from src.services.summary_service import get_paginated_summaries, get_summary_with_sources
 
 
-summaries_router = APIRouter(prefix="/summaries", tags=["Рефераты ✒️"])
+summaries_router = APIRouter(prefix="/summarizers", tags=["Рефераты ✒️"])
 
 
 @summaries_router.get("", summary="Получить список всех рефератов")

@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-from src.schemas.base import Pagination
+from src.dto.base import Pagination
 
 
 class SummaryScheme(BaseModel):
