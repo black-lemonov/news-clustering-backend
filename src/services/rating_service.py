@@ -15,6 +15,8 @@ async def update_summary_rate(
     if not summary:
         raise HTTPException(status_code=404, detail="Реферат не найден")
 
+    rate_field = "negative_rates" if "dislike" else "positive_rates"
+
     current_value = getattr(summary, rate_field)
     if action == RateAction.ADD:
         setattr(summary, rate_field, current_value + 1)

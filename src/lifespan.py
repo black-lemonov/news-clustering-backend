@@ -5,7 +5,7 @@ import nltk
 from fastapi import FastAPI
 
 from src.logger import init_logger
-from src.text_processing.start import start_background_task
+from src.text_processing.background_task import start_background_task
 from src.database import init_db
 
 

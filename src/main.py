@@ -1,3 +1,4 @@
+import uvicorn
 from fastapi import FastAPI
 
 from src.lifespan import lifespan
@@ -12,5 +13,4 @@ app.include_router(ratings_router)
 
 
 if __name__ == "__main__":
-    import uvicorn
     uvicorn.run("src.main:app", reload=True)
