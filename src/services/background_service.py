@@ -35,11 +35,13 @@ async def start_background_task():
                     continue
 
                 if not (await check_if_summary_exist(session, url)):
+                    logger.debug("Работает?")
                     add_summary(
                         session,
                         url,
                         summarizer.summarize(content)
                     )
+                    logger.debug("Работает")
 
                 have_summary.add(label)
 

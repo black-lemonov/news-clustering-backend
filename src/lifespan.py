@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 import nltk
 from fastapi import FastAPI
 
+from src.database import init_db
 from src.logger import init_logger
 from src.services.background_service import start_background_task
 
@@ -12,6 +13,6 @@ from src.services.background_service import start_background_task
 async def lifespan(app: FastAPI):
     nltk.download("stopwords")
     init_logger()
-    # await init_db()
+    await init_db()
     asyncio.create_task(start_background_task())
     yield

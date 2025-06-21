@@ -11,6 +11,7 @@ from src.dto.article import Article
 from src.services.news_service import add_news
 
 
+
 class NewsParser:
     def __init__(
             self,
@@ -68,8 +69,6 @@ class NewsParser:
                 if self.__is_spam(content):
                     # Это спам
                     continue
-
-                print(content)
 
                 await self.__save_to_db(
                     Article(url, title, content, date)

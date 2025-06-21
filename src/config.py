@@ -74,4 +74,4 @@ LOGGING_CONFIG = {
     },
 }
 
-DT_MODEL_PATH = "../ml_models/best_smote_dt.joblib"
+DT_MODEL_PATH = "ml_models/best_dt.joblib"
