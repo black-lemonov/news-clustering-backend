@@ -73,3 +73,5 @@ LOGGING_CONFIG = {
         "level": "WARNING",
     },
 }
+
+DT_MODEL_PATH = "../ml_models/best_smote_dt.joblib"
