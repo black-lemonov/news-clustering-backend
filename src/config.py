@@ -75,3 +75,6 @@ LOGGING_CONFIG = {
 }
 
 DT_MODEL_PATH = "ml_models/best_dt.joblib"
+RF_MODEL_PATH = "ml_models/best_rf.joblib"
+XGB_MODEL_PATH = "ml_models/best_xgb.json"
+LGBM_MODEL_PATH = "ml_models/best_lgbm.joblib"

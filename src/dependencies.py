@@ -12,6 +12,7 @@ from src.database import get_session
 from src.parsers.news_parser import NewsParser
 from src.summarizers.base_summarizer import BaseSummarizer
 from src.summarizers.dt_summarizer import DecisionTreeSummarizer
+from src.summarizers.lgbm_summarizer import LGBMSummarizer
 from src.summarizers.tr_summarizer import TRSummarizer
 from src.preprocessing.tfidf_vectorizer import StemmedTfidfVectorizer
 
@@ -47,4 +48,4 @@ def get_clustering_model() -> Pipeline:
 
 
 def get_summarizer() -> BaseSummarizer:
-    return DecisionTreeSummarizer()
+    return LGBMSummarizer()

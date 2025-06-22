@@ -13,7 +13,7 @@ logger = get_logger()
 async def start_background_task():
     while True:
         logger.debug("Запуск парсинга...")
-        await run_parsers()
+        # await run_parsers()
         logger.debug("Парсинг завершен")
 
         logger.debug("Запуск кластеризации...")
@@ -36,11 +36,16 @@ async def start_background_task():
 
                 if not (await check_if_summary_exist(session, url)):
                     logger.debug("Работает?")
-                    add_summary(
-                        session,
-                        url,
-                        summarizer.summarize(content)
-                    )
+                    try:
+                        add_summary(
+                            session,
+                            url,
+                            summarizer.summarize(content)
+                        )
+                    except Exception as e:
+                        logger.error("Ошибка при реферировании")
+                        logger.error(e)
+                     
                     logger.debug("Работает")
 
                 have_summary.add(label)

@@ -13,6 +13,6 @@ from src.services.background_service import start_background_task
 async def lifespan(app: FastAPI):
     nltk.download("stopwords")
     init_logger()
-    await init_db()
+    # await init_db()
     asyncio.create_task(start_background_task())
     yield
