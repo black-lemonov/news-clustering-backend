@@ -5,7 +5,7 @@ from src.dto.rating import RateType, RateAction
 from src.services.rating_service import update_summary_rate
 
 
-ratings_router = APIRouter(prefix="/summarizers", tags=["Оценки"])
+ratings_router = APIRouter(prefix="/summaries", tags=["Оценки"])
 
 
 @ratings_router.patch("/{cluster_n}/{rate_type}/{action}", summary="Обновить рейтинг реферата")

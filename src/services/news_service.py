@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import select, update
+from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.news import News
@@ -43,4 +43,17 @@ def add_news(
             published_at=published_at,
             content=content
         )
+    )
+
+
+async def del_cluster_in_news(session: AsyncSession, cluster_n: int) -> None:
+    await session.execute(
+        update(News)
+        .where(News.cluster_n == cluster_n)
+        .values(cluster_n=None)
+    )
+
+async def del_news_by_cluster(session: AsyncSession, cluster_n: int) -> None:
+    await session.execute(
+        delete(News).where(News.cluster_n == cluster_n)
     )

@@ -74,7 +74,12 @@ LOGGING_CONFIG = {
     },
 }
 
-DT_MODEL_PATH = "ml_models/best_dt.joblib"
-RF_MODEL_PATH = "ml_models/best_rf.joblib"
-XGB_MODEL_PATH = "ml_models/best_xgb.json"
-LGBM_MODEL_PATH = "ml_models/best_lgbm.joblib"
+SUMM_MODELS_FILEPATHS = {
+    "dt": "ml_models/best_dt.joblib",
+    "rf": "ml_models/best_rf.joblib",
+    "xgb": "ml_models/best_xgb.json",
+    "lgbm": "ml_models/best_lgbm.joblib",
+    "text-rank": ""
+}
+
+SELECTED_MODEL = "lgbm"

@@ -14,5 +14,5 @@ async def lifespan(app: FastAPI):
     nltk.download("stopwords")
     init_logger()
     # await init_db()
-    asyncio.create_task(start_background_task())
+    # asyncio.create_task(start_background_task())
     yield
