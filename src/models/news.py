@@ -13,17 +13,8 @@ class News(Base):
     title: Mapped[str]
     published_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
     content: Mapped[str]
-    cluster_n: Mapped[int | None] = mapped_column(
-        ForeignKey("cluster.n"),
-        default=None,
-        nullable=True,
-        index=True
-    )
+    cluster_n: Mapped[int | None]
 
-    cluster = relationship(
-        "Cluster",
-        back_populates="news"
-    )
     summary = relationship(
         "Summary",
         back_populates="news",
