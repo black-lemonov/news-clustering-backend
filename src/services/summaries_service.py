@@ -1,9 +1,11 @@
 from sqlalchemy import select, func, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.dependencies import get_summarizer
 from src.models.news import News
 from src.models.summary import Summary
 from src.dto.summaries import SourceScheme
+from src.services.news_service import get_news_content_by_urls
 
 
 async def get_cluster_news_urls(session: AsyncSession, cluster_n: int) -> list[str]:
@@ -95,3 +97,25 @@ def add_summary(session: AsyncSession, news_url: str, summary: str) -> None:
         content=summary
     )
     session.add(summary)
+
+
+async def generate_summary(
+        session: AsyncSession,
+        news_url: str,
+        force: bool = False
+) -> None:
+    if await check_if_summary_exist(session, news_url):
+        if not force: return
+
+    news_content = await get_news_content_by_urls(
+        session, [news_url]
+    )
+
+    summarizer = get_summarizer()
+    news_summary = summarizer.summarize(news_content[0])
+
+    add_summary(
+        session,
+        news_url,
+        news_summary
+    )

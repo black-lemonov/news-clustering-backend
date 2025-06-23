@@ -3,14 +3,15 @@ import asyncio
 from src.dependencies import get_logger, get_clustering_model, get_summarizer
 from src.database import session_scope
 from src.config import PARSING_INTERVAL
+from src.services.clustering_service import make_clusters
 from src.services.news_service import get_all_news_urls, get_news_content_by_urls, set_cluster_n
 from src.services.parsers_service import run_parsers
-from src.services.summary_service import add_summary, check_if_summary_exist
+from src.services.summaries_service import add_summary, check_if_summary_exist, generate_summaries_for_clusters
 
 logger = get_logger()
 
 
-async def start_background_task():
+async def start_bg_task():
     while True:
         logger.debug("Запуск парсинга...")
         # await run_parsers()
@@ -51,5 +52,18 @@ async def start_background_task():
                 have_summary.add(label)
 
             logger.debug("Записи в БД обновлены")
+
+        await asyncio.sleep(PARSING_INTERVAL)
+
+
+async def start_bg_task2():
+    while True:
+        # await run_parsers()
+        async with session_scope() as session:
+            clusters_labels = await make_clusters(session)
+            logger.debug(clusters_labels)
+
+            summarizer = get_summarizer()
+            await generate_summaries_for_clusters(session, summarizer, clusters_labels)
 
         await asyncio.sleep(PARSING_INTERVAL)

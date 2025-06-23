@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime
+from sqlalchemy import DateTime, ForeignKey
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
 from src.models.base import Base
@@ -13,8 +13,17 @@ class News(Base):
     title: Mapped[str]
     published_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
     content: Mapped[str]
-    cluster_n: Mapped[int | None] = mapped_column(index=True)
+    cluster_n: Mapped[int | None] = mapped_column(
+        ForeignKey("cluster.n"),
+        default=None,
+        nullable=True,
+        index=True
+    )
 
+    cluster = relationship(
+        "Cluster",
+        back_populates="news"
+    )
     summary = relationship(
         "Summary",
         back_populates="news",
