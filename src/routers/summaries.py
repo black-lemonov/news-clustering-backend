@@ -43,6 +43,15 @@ async def get_summary_w_sources_by_id(
         cluster_n: int,
         session: SessionDep
 ) -> SummaryWithSourcesScheme:
+    summary_data = await get_summary_with_sources(session, cluster_n)
+    if not summary_data:
+        raise HTTPException(status_code=404, detail="Реферат не найден")
 
-
-    return {"status": "OK", "message": "Оценка добавлена"}
+    summary, sources = summary_data
+    return SummaryWithSourcesScheme(
+        title=summary.title,
+        summary=summary.content,
+        created_at=summary.published_at,
+        cluster_n=cluster_n,
+        news=sources
+    )
