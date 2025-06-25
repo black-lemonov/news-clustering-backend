@@ -64,7 +64,7 @@ class NewsParser:
                 print("Отправляю запрос к %s ...", self.__site_url)
                 content = await self.__try_get_article_content(client, url)
 
-                if content is None:
+                if content is None or len(content) < 30:
                     continue
 
                 if self.__is_spam(content):

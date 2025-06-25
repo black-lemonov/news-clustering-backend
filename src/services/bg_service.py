@@ -6,7 +6,6 @@ from src.dependencies import get_logger, get_clustering_model, get_summarizer
 from src.database import session_scope
 from src.config import PARSING_INTERVAL
 from src.services.news_service import get_all_news_urls, get_news_content_by_urls, set_cluster_n
-from src.services.parsers_service import run_parsers
 from src.services.summaries_service import add_summary, check_if_summary_exist
 
 logger = get_logger()
@@ -24,7 +23,8 @@ def update_timer():
 async def start_bg_task():
     while True:
         logger.debug("Запуск парсинга...")
-        await run_parsers()
+        update_timer()
+        # await run_parsers()
         logger.debug("Парсинг завершен")
 
         logger.debug("Запуск кластеризации...")
@@ -36,6 +36,7 @@ async def start_bg_task():
 
             clusters_labels = get_clustering_model().fit_predict(news_content)
             logger.debug(f"Кластеризация выполнена: {len(set(clusters_labels))} кластеров")
+            logger.debug(clusters_labels)
             have_summary = set()
             summarizer = get_summarizer()
 
@@ -47,15 +48,17 @@ async def start_bg_task():
                     continue
 
                 if not (await check_if_summary_exist(session, url)):
-                    summary = summarizer.summarize(content)
-                    add_summary(session, url, summary)
+                    try:
+                        summary = summarizer.summarize(content)
+                        add_summary(session, url, summary)
+                    except Exception as e:
+                        logger.error(f"Ошибка при реферировании: {e}")
 
                 have_summary.add(label)
 
             logger.debug("Записи в БД обновлены")
 
         await asyncio.sleep(PARSING_INTERVAL)
-        update_timer()
 
 
 def get_last_parsing_time_from_config():

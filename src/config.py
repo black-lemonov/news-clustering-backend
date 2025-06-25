@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 MAX_DF = 0.7
 MIN_DF = 1
-EPS = 1.17
+EPS = 0.86
 MIN_SAMPLES = 1
 
 CLUSTER_TTL = timedelta(seconds=10)
