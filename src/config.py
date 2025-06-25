@@ -1,5 +1,7 @@
 from datetime import timedelta
 
+from dotenv import load_dotenv
+
 MAX_DF = 0.7
 MIN_DF = 1
 EPS = 1.17
@@ -46,6 +48,13 @@ SUMM_MODELS_FILEPATHS = {
     "dt": "ml_models/best_dt.joblib",
     "dt_smote": "ml_models/best_smote_dt.joblib",
     "rf": "ml_models/best_rf.joblib",
-    "xgb": "ml_models/best_xgb.json",
+    # "xgb": "ml_models/best_xgb.json",
     "lgbm": "ml_models/best_lgbm.joblib",
 }
+
+
+load_dotenv(".env")
+import os
+
+ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD")

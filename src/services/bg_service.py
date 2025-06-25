@@ -1,4 +1,6 @@
 import asyncio
+from datetime import datetime
+import json
 
 from src.dependencies import get_logger, get_clustering_model, get_summarizer
 from src.database import session_scope
@@ -8,6 +10,15 @@ from src.services.parsers_service import run_parsers
 from src.services.summaries_service import add_summary, check_if_summary_exist
 
 logger = get_logger()
+
+
+def update_timer():
+    with open("config.json") as f:
+        conf = json.load(f)
+        conf["last_parsing_time"] = datetime.now().isoformat()
+
+    with open("config.json", 'w') as f:
+        json.dump(conf, f)
 
 
 async def start_bg_task():
@@ -44,3 +55,9 @@ async def start_bg_task():
             logger.debug("Записи в БД обновлены")
 
         await asyncio.sleep(PARSING_INTERVAL)
+        update_timer()
+
+
+def get_last_parsing_time_from_config():
+    with open("config.json") as f:
+        return json.load(f)["last_parsing_time"]
