@@ -35,7 +35,7 @@ admin_router = APIRouter(
 )
 
 
-@admin_router.get("/summaries/", summary="Сгенерировать реферат для новости")
+@admin_router.post("/summaries/", summary="Сгенерировать реферат для новости")
 async def generate_summary(news_url: str, session: SessionDep):
     await create_summary_for_news(session, news_url)
     return {"status": "OK", "message": "Реферат создан"}
@@ -80,15 +80,13 @@ def load_parser(file: UploadFile):
 def get_parser_template():
     return JSONResponse(
         {
-            "site_url": "url страницы со статьями",
-            "article_selector": "тэг со статьей",
-            "title_selector": "тэг с заголовком",
-            "url_selector": "тэг со ссылкой на полную статью",
-            "date_selector": "тэг с датой публикации",
-            "content_selector": "тэг с текстом статьи",
-            "stop_words": [
-                "список слов которых не должно быть в тексте статей"
-            ]
+            "site_url": "",
+            "article_selector": "",
+            "title_selector": "",
+            "url_selector": "",
+            "date_selector": "",
+            "content_selector": "",
+            "stop_words": []
         }
     )
 
