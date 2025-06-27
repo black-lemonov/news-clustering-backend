@@ -2,6 +2,7 @@ from datetime import datetime
 
 from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from src.models.news import News
 
@@ -57,3 +58,23 @@ async def del_news_by_cluster(session: AsyncSession, cluster_n: int) -> None:
     await session.execute(
         delete(News).where(News.cluster_n == cluster_n)
     )
+
+
+async def get_news_w_summaries(session: AsyncSession) -> list[list]:
+    news_items = await session.execute(
+        select(News)
+        .options(selectinload(News.summary))
+        .where(News.summary.any())
+    )
+    return [
+        [
+            n.url,
+            n.title,
+            n.published_at.isoformat(),
+            n.content,
+            n.summary[0].content,
+            n.summary[0].positive_rates,
+            n.summary[0].negative_rates
+        ]
+        for n in news_items.scalars().all()
+    ]

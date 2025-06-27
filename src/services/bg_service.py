@@ -61,6 +61,6 @@ async def start_bg_task():
         await asyncio.sleep(PARSING_INTERVAL)
 
 
-def get_last_parsing_time_from_config():
+def load_last_parsing_time_from_config() -> str:
     with open("config.json") as f:
         return json.load(f)["last_parsing_time"]
