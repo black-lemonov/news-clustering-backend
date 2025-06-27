@@ -2,9 +2,10 @@ from sqlalchemy import select, func, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.dependencies import get_summarizer
+from src.dto.source import Source
+from src.dto.summary import SummaryDTO
 from src.models.news import News
 from src.models.summary import Summary
-from src.dto.summaries import SourceScheme
 from src.services.news_service import get_news_content_by_urls
 
 
@@ -31,7 +32,7 @@ async def get_paginated_summaries(
         session: AsyncSession,
         page: int,
         size: int
-) -> tuple[list, int]:
+) -> list[SummaryDTO]:
     offset = page * size
     query = (
         select(
@@ -47,19 +48,38 @@ async def get_paginated_summaries(
         .limit(size)
     )
     result = await session.execute(query)
-    summaries = list(result.all())
+    summaries = result.all()
 
-    count_query = (
-        select(func.count())
-        .select_from(News)
+    return [
+        SummaryDTO(
+            title=s.title,
+            content=s.content,
+            created_at=s.published_at,
+            cluster_n=s.cluster_n
+        )
+        for s in summaries
+    ]
+
+
+async def get_summary_by_cluster(session: AsyncSession, cluster_n: int) -> SummaryDTO:
+
+    summary = await session.execute(
+        select(News.title, Summary.content, News.published_at, News.cluster_n)
         .join(Summary.news)
+        .where(News.cluster_n == cluster_n)
+        .limit(1)
     )
-    total_count = (await session.execute(count_query)).scalar() or 0
+    summary = summary.scalars().first()
 
-    return summaries, total_count
+    return SummaryDTO(
+        title=summary.title,
+        content=summary.content,
+        created_at=summary.published_at,
+        cluster_n=summary.cluster_n
+    )
 
 
-async def get_summary_with_sources(session: AsyncSession, cluster_n: int) -> tuple | None:
+async def get_summary_w_sources(session: AsyncSession, cluster_n: int) -> tuple | None:
     sources_query = select(News.url, News.title).where(News.cluster_n == cluster_n)
     sources_result = await session.execute(sources_query)
 
@@ -76,7 +96,7 @@ async def get_summary_with_sources(session: AsyncSession, cluster_n: int) -> tup
         return None
 
     return summary, [
-        SourceScheme(url=row.url, title=row.title)
+        Source(url=row.url, title=row.title)
         for row in sources_result.all()
     ]
 
@@ -110,3 +130,19 @@ async def create_summary_for_news(session: AsyncSession, news_url: str):
         content=summary
     )
     session.add(summary)
+
+
+async def get_summary_by_cluster(session: AsyncSession, cluster_n: int) -> str:
+    summary = await session.execute(
+        select(Summary.content).
+        where(
+            Summary.news_url.in_(
+                select(News.url)
+                .where(
+                    News.cluster_n == cluster_n
+                )
+            )
+        )
+    )
+    return summary.scalars().first()
+    

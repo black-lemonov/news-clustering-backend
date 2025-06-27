@@ -2,7 +2,7 @@ from fastapi import APIRouter, status
 from fastapi.responses import Response
 
 from src.dependencies import SessionDep
-from src.dto.rating import RateType, RateAction
+from src.enums.rating import RateType, RateAction
 from src.services.rating_service import update_summary_rate
 
 

@@ -1,9 +1,10 @@
 from datetime import datetime
 
-from sqlalchemy import select, update, delete
+from sqlalchemy import select, update, delete, and_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from src.dto.source import Source
 from src.models.news import News
 
 
@@ -77,4 +78,16 @@ async def get_news_w_summaries(session: AsyncSession) -> list[list]:
             n.summary[0].negative_rates
         ]
         for n in news_items.scalars().all()
+    ]
+
+
+async def get_news_sources_by_cluster(session: AsyncSession, cluster_n: int) -> list[Source]:
+    sources = await session.execute(
+        select(News.url, News.title)
+        .where(News.cluster_n == cluster_n)
+    )
+
+    return [
+        Source(url=s.url, title=s.title)
+        for s in sources.scalars().all()
     ]

@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.dto.rating import RateAction, RateType
+from src.enums.rating import RateAction, RateType
 from src.services.summaries_service import get_cluster_summary
 
 

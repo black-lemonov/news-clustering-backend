@@ -1,9 +1,9 @@
-from dataclasses import dataclass
 from datetime import datetime
 
+from pydantic import BaseModel
 
-@dataclass
-class Article:
+
+class NewsDTO(BaseModel):
     url: str
     title: str
     content: str
