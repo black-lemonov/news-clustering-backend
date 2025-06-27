@@ -1,12 +1,12 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Query, HTTPException, status
+from fastapi import APIRouter, Query, status
 
 from src.dependencies import SessionDep
 from src.dto.summaries_list_w_pagination import SummariesListWithPagination
 from src.dto.summary_w_sources import SummaryWithSources
 from src.services.news_service import get_news_sources_by_cluster
-from src.services.summaries_service import get_paginated_summaries, get_summary_w_sources, get_summary_by_cluster
+from src.services.summaries_service import get_paginated_summaries, get_summary_by_cluster
 
 summaries_router = APIRouter(prefix="/summaries", tags=["Рефераты ✒️"])
 

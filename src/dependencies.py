@@ -1,13 +1,15 @@
 import logging
+import secrets
 from logging import Logger
 from typing import Annotated
 
-from fastapi import Depends
+from fastapi import Depends, Security, HTTPException, status
+from fastapi.security import HTTPBasicCredentials, HTTPBasic
 from sklearn.cluster import DBSCAN
 from sklearn.pipeline import Pipeline, make_pipeline
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.config import MAX_DF, MIN_DF, EPS, MIN_SAMPLES, SUMM_MODELS_FILEPATHS
+from src.config import MAX_DF, MIN_DF, EPS, MIN_SAMPLES, SUMM_MODELS_FILEPATHS, ADMIN_USERNAME, ADMIN_PASSWORD
 from src.database import get_session
 from src.parsers.news_parser import NewsParser
 from src.parsers.parsers_factories import JSONParsersFactory
@@ -16,6 +18,7 @@ from src.preprocessing.tfidf_vectorizer import StemmedTfidfVectorizer
 from src.summarizers.model_summarizer import ModelSummarizer
 from src.summarizers.utils.joblib_loader import JoblibLoader
 from src.summarizers.utils.model_selection import get_selected_model_name
+
 
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
 
@@ -52,3 +55,20 @@ def get_summarizer() -> BaseSummarizer:
         JoblibLoader()
     )
     return model
+
+
+def verify_admin(credentials: HTTPBasicCredentials = Security(HTTPBasic())):
+    username_correct = secrets.compare_digest(credentials.username, ADMIN_USERNAME)
+    password_correct = secrets.compare_digest(credentials.password, ADMIN_PASSWORD)
+
+    if not (username_correct and password_correct):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Неверные учетные данные",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
+    return credentials.username
+
+
+AuthDep = Depends(verify_admin)

@@ -1,4 +1,4 @@
-from sqlalchemy import select, func, desc
+from sqlalchemy import select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.dependencies import get_summarizer
@@ -130,19 +130,4 @@ async def create_summary_for_news(session: AsyncSession, news_url: str):
         content=summary
     )
     session.add(summary)
-
-
-async def get_summary_by_cluster(session: AsyncSession, cluster_n: int) -> str:
-    summary = await session.execute(
-        select(Summary.content).
-        where(
-            Summary.news_url.in_(
-                select(News.url)
-                .where(
-                    News.cluster_n == cluster_n
-                )
-            )
-        )
-    )
-    return summary.scalars().first()
     

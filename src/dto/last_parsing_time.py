@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from src.services.bg_service import load_last_parsing_time_from_config
+from src.utils import load_last_parsing_time_from_config
 
 
 class LastParsingTime(BaseModel):

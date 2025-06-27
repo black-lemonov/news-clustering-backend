@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import select, update, delete, and_, func
+from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -23,7 +23,11 @@ async def get_news_content_by_urls(session: AsyncSession, urls: list[str]) -> li
     return list(result.scalars().all())
 
 
-async def set_cluster_n(session: AsyncSession, news_url: str, cluster_n: int) -> None:
+async def set_cluster_n(
+        session: AsyncSession,
+        news_url: str,
+        cluster_n: int
+) -> None:
     await session.execute(
         update(News)
         .where(News.url == news_url)
@@ -37,7 +41,7 @@ def add_news(
         title: str,
         published_at: datetime,
         content: str
-):
+) -> None:
     session.add(
         News(
             url=url,
@@ -54,6 +58,7 @@ async def del_cluster_in_news(session: AsyncSession, cluster_n: int) -> None:
         .where(News.cluster_n == cluster_n)
         .values(cluster_n=None)
     )
+
 
 async def del_news_by_cluster(session: AsyncSession, cluster_n: int) -> None:
     await session.execute(

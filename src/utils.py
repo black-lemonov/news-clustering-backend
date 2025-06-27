@@ -7,7 +7,8 @@ def load_parser_config_example() -> dict:
     with open("parser_config.json") as f:
         return json.load(f)
 
-def generate_csv(headers: list[str], data: list[list]) -> str:
+
+def generate_csv_for_news(headers: list[str], data: list[list]) -> str:
     """Сгенерировать .csv таблицу из заголовков и матрицы с данными"""
     output = StringIO()
     writer = csv.writer(output, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -20,3 +21,8 @@ def generate_csv(headers: list[str], data: list[list]) -> str:
     output.seek(0)
 
     return output.getvalue()
+
+
+def load_last_parsing_time_from_config() -> str:
+    with open("config.json") as f:
+        return json.load(f)["last_parsing_time"]

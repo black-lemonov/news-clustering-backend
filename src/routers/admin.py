@@ -1,14 +1,10 @@
 import json
-import secrets
 
-from fastapi import APIRouter, UploadFile, Depends, HTTPException, status
-from fastapi.params import Security
+from fastapi import APIRouter, UploadFile, HTTPException, status
 from fastapi.responses import Response, JSONResponse
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from sqlalchemy import delete
 
-from src.config import ADMIN_USERNAME, ADMIN_PASSWORD
-from src.dependencies import SessionDep
+from src.dependencies import SessionDep, AuthDep
 from src.dto.available_models_list import AvailableModelsList
 from src.dto.last_parsing_time import LastParsingTime
 from src.dto.parsers_sites_urls import ParsersSitesUrls
@@ -19,27 +15,13 @@ from src.services.bg_service import start_bg_task
 from src.services.news_service import get_news_w_summaries
 from src.services.summaries_service import create_summary_for_news
 from src.summarizers.utils.model_selection import set_model_by_name
-from src.utils import load_parser_config_example, generate_csv
-
-
-def verify_admin(credentials: HTTPBasicCredentials = Security(HTTPBasic())):
-    username_correct = secrets.compare_digest(credentials.username, ADMIN_USERNAME)
-    password_correct = secrets.compare_digest(credentials.password, ADMIN_PASSWORD)
-
-    if not (username_correct and password_correct):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Неверные учетные данные",
-            headers={"WWW-Authenticate": "Basic"},
-        )
-
-    return credentials.username
+from src.utils import load_parser_config_example, generate_csv_for_news
 
 
 admin_router = APIRouter(
     prefix="/admin",
     tags=["Управление 🤖"],
-    dependencies=[Depends(verify_admin)]
+    dependencies=[AuthDep]
 )
 
 
@@ -168,10 +150,10 @@ async def export_news_with_summaries(session: SessionDep) -> Response:
             "summary_content", "positive_rates", "negative_rates"
         ]
 
-        csv_str = generate_csv(headers, news_w_summaries)
+        csv_table = generate_csv_for_news(headers, news_w_summaries)
 
         return Response(
-            content=csv_str,
+            content=csv_table,
             media_type="text/csv",
             headers={
                 "Content-Disposition": "attachment; filename=news_with_summaries.csv",
