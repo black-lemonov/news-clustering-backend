@@ -1,11 +1,20 @@
-FROM python:3.12.3
+FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY pyproject.toml ./
 
-RUN pip install poetry && poetry install --no-root
+RUN pip install poetry
+
+
+COPY pyproject.toml poetry.lock ./
+
+
+RUN poetry config virtualenvs.create false && poetry install --no-root
+
+RUN python -c "import nltk; nltk.download('punkt')"
+RUN python -c "import nltk; nltk.download('stopwords')"
+RUN python -c "import nltk; nltk.download('punkt_tab')"
 
 COPY . .
 
-CMD ["poetry", "run", "python", "src/main.py"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]

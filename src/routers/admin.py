@@ -10,7 +10,7 @@ from src.dto.last_parsing_time import LastParsingTime
 from src.dto.parsers_sites_urls import ParsersSitesUrls
 from src.dto.selected_model_name import SelectedModelName
 from src.models import News
-from src.parsers.parsers_selection import remove_parser, add_new_parser
+from src.services.parsers_service import remove_parser, add_new_parser
 from src.services.bg_service import start_bg_task
 from src.services.news_service import get_news_w_summaries
 from src.services.summaries_service import create_summary_for_news

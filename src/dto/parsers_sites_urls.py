@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from src.parsers.parsers_selection import get_parsers_sites_urls
+from src.services.parsers_service import get_parsers_sites_urls
 
 
 class ParsersSitesUrls(BaseModel):
