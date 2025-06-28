@@ -1,11 +1,15 @@
+import csv
 from datetime import datetime
+from io import StringIO
 
+from fastapi import HTTPException
 from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from src.dto.source import Source
 from src.models.news import News
+from src.utils import load_news_csv_table_headers_from_config
 
 
 async def get_all_news_urls(session: AsyncSession) -> list[str]:
@@ -96,3 +100,37 @@ async def get_news_sources_by_cluster(session: AsyncSession, cluster_n: int) -> 
         Source(url=s.url, title=s.title)
         for s in sources.scalars().all()
     ]
+
+async def generate_csv_table_for_news(session: AsyncSession) -> str:
+    news_w_summaries = await session.execute(
+        select(News)
+        .options(selectinload(News.summary))
+        .where(News.summary.any())
+    )
+
+    if not news_w_summaries:
+        raise HTTPException(status_code=404, detail="Нет новостей с рефератами")
+
+    output = StringIO()
+    writer = csv.writer(output, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+    headers = load_news_csv_table_headers_from_config()
+
+    writer.writerow(headers)
+
+    for n in news_w_summaries.all():
+        writer.writerow(
+            (
+                n.url,
+                n.title,
+                n.published_at.isoformat(),
+                n.content,
+                n.summary[0].content,
+                n.summary[0].positive_rates,
+                n.summary[0].negative_rates
+            )
+        )
+
+    output.seek(0)
+
+    return output.getvalue()

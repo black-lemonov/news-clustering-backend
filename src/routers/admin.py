@@ -1,21 +1,20 @@
 import json
 
-from fastapi import APIRouter, UploadFile, HTTPException, status
+from fastapi import APIRouter, UploadFile, status
 from fastapi.responses import Response, JSONResponse
-from sqlalchemy import delete
 
 from src.dependencies import SessionDep, AuthDep
 from src.dto.available_models_list import AvailableModelsList
 from src.dto.last_parsing_time import LastParsingTime
+from src.dto.news_csv_table import NewsCSVTable
 from src.dto.parsers_sites_urls import ParsersSitesUrls
 from src.dto.selected_model_name import SelectedModelName
-from src.models import News
 from src.services.parsers_service import remove_parser, add_new_parser
 from src.services.bg_service import start_bg_task
-from src.services.news_service import get_news_w_summaries
+from src.services.news_service import del_news_by_cluster, generate_csv_table_for_news
 from src.services.summaries_service import create_summary_for_news
 from src.summarizers.utils.model_selection import set_model_by_name
-from src.utils import load_parser_config_example, generate_csv_for_news
+from src.utils import load_parser_config_example
 
 
 admin_router = APIRouter(
@@ -68,7 +67,7 @@ def set_model(model_name: str) -> Response:
     summary="Получить список новостных сайтов для парсинга",
     status_code=status.HTTP_200_OK
 )
-def get_all_parsers():
+def get_all_parsers() -> ParsersSitesUrls:
     return ParsersSitesUrls()
 
 
@@ -127,10 +126,7 @@ async def get_last_parsing_time() -> LastParsingTime:
     status_code=status.HTTP_200_OK
 )
 async def delete_cluster(cluster_n: int, session: SessionDep) -> Response:
-    await session.execute(
-        delete(News)
-        .where(News.cluster_n == cluster_n)
-    )
+    await del_news_by_cluster(session, cluster_n)
     return Response(content="Кластер новостей был успешно удален")
 
 
@@ -139,24 +135,6 @@ async def delete_cluster(cluster_n: int, session: SessionDep) -> Response:
     summary="Скачать таблицу .csv",
     status_code=status.HTTP_200_OK
 )
-async def export_news_with_summaries(session: SessionDep) -> Response:
-        news_w_summaries = await get_news_w_summaries(session)
-
-        if not news_w_summaries or len(news_w_summaries) == 0:
-            raise HTTPException(status_code=404, detail="Нет новостей с рефератами")
-
-        headers = [
-            "url", "title", "date", "content",
-            "summary_content", "positive_rates", "negative_rates"
-        ]
-
-        csv_table = generate_csv_for_news(headers, news_w_summaries)
-
-        return Response(
-            content=csv_table,
-            media_type="text/csv",
-            headers={
-                "Content-Disposition": "attachment; filename=news_with_summaries.csv",
-                "Content-Type": "text/csv; charset=utf-8"
-            }
-        )
+async def export_news_with_summaries(session: SessionDep) -> NewsCSVTable:
+    news_csv_table = await generate_csv_table_for_news(session)
+    return NewsCSVTable(content=news_csv_table)

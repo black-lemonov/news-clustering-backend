@@ -1,6 +1,4 @@
-import csv
 import json
-from io import StringIO
 
 
 def load_parser_config_example() -> dict:
@@ -8,21 +6,11 @@ def load_parser_config_example() -> dict:
         return json.load(f)
 
 
-def generate_csv_for_news(headers: list[str], data: list[list]) -> str:
-    """Сгенерировать .csv таблицу из заголовков и матрицы с данными"""
-    output = StringIO()
-    writer = csv.writer(output, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-
-    writer.writerow(headers)
-
-    for row in data:
-        writer.writerow(row)
-
-    output.seek(0)
-
-    return output.getvalue()
-
-
 def load_last_parsing_time_from_config() -> str:
-    with open("config.json") as f:
+    with open("application.json") as f:
         return json.load(f)["last_parsing_time"]
+
+
+def load_news_csv_table_headers_from_config() -> list[str]:
+    with open("application.json") as f:
+        return json.load(f)["news_csv_table_columns"]

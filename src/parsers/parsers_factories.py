@@ -12,7 +12,7 @@ class ParsersFactory(ABC):
 
 class JSONParsersFactory(ParsersFactory):
     def load_parsers(self) -> list[NewsParser]:
-        with open("config.json") as conf_file:
+        with open("application.json") as conf_file:
             conf_dict = json.load(conf_file)
             return [
                 NewsParser(**conf)

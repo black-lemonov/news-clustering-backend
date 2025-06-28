@@ -12,11 +12,11 @@ logger = get_logger()
 
 
 def update_timer():
-    with open("config.json") as f:
+    with open("application.json") as f:
         conf = json.load(f)
         conf["last_parsing_time"] = datetime.now().isoformat()
 
-    with open("config.json", 'w') as f:
+    with open("application.json", 'w') as f:
         json.dump(conf, f)
 
 
