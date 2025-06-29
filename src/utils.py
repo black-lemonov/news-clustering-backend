@@ -1,5 +1,9 @@
 import json
 
+from src.config import DB_NAME, DB_PASSWORD, DB_USERNAME
+
+
+URL_REGEX = r"^https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$"
 
 def load_parser_config_example() -> dict:
     with open("parser_config.json") as f:

@@ -3,7 +3,7 @@ from src.summarizers.base_summarizer import BaseSummarizer
 from src.summarizers.utils.model_loader import ModelLoader
 
 
-class ModelSummarizer[T](BaseSummarizer):
+class ModelSummarizer(BaseSummarizer):
     def __init__(self, model_filepath: str, model_loader: ModelLoader) -> None:
         self._fe = FeaturesExtractor()
         self.__model = model_loader.load_model(model_filepath)

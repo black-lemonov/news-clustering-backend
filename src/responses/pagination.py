@@ -4,8 +4,8 @@ from pydantic import BaseModel, Field
 
 
 class Pagination(BaseModel):
-    page: int
-    size: int
+    page: int = Field(default=1, ge=1, description="Номер страницы")
+    size: int = Field(default=5, ge=0, description="Кол-во элементов на странице")
     total: int = Field(
         default_factory=lambda data: (
             math.ceil(data["total_count"] / data["size"])

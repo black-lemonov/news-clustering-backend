@@ -48,7 +48,6 @@ SUMM_MODELS_FILEPATHS = {
     "dt": "ml_models/best_dt.joblib",
     "dt_smote": "ml_models/best_smote_dt.joblib",
     "rf": "ml_models/best_rf.joblib",
-    # "xgb": "ml_models/best_xgb.json",
     "lgbm": "ml_models/best_lgbm.joblib",
 }
 
@@ -58,3 +57,8 @@ import os
 
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
+
+DB_NAME = os.getenv("DB_NAME")
+DB_HOST = os.getenv("DB_HOST")
+DB_USERNAME = os.getenv("DB_USERNAME")
+DB_PASSWORD = os.getenv("DB_PASSWORD")

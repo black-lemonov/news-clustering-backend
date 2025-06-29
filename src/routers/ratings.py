@@ -1,5 +1,6 @@
-from fastapi import APIRouter, status
-from fastapi.responses import Response
+from typing import Annotated
+
+from fastapi import APIRouter, status, Path
 
 from src.dependencies import SessionDep
 from src.enums.rating import RateType, RateAction
@@ -15,11 +16,11 @@ ratings_router = APIRouter(prefix="/summaries", tags=["Оценки"])
     status_code=status.HTTP_200_OK
 )
 async def update_summary_rate_endpoint(
-        cluster_n: int,
-        rate_type: RateType,
-        action: RateAction,
+        cluster_n: Annotated[int, Path(description="Номер кластера")],
+        rate_type: Annotated[RateType, Path(description="Тип оценки", examples=["like", "dislike"])],
+        action: Annotated[RateAction, Path(description="Тип действия с оценкой", examples=["add", "remove"])],
         session: SessionDep,
-) -> Response:
+) -> str:
     await update_summary_rate(
         session,
         cluster_n,
@@ -27,4 +28,4 @@ async def update_summary_rate_endpoint(
         action
     )
 
-    return Response(content="Оценка успешна установлена")
+    return "Оценка успешна установлена"

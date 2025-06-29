@@ -1,21 +1,21 @@
 import json
+from typing import Annotated
 
-from fastapi import APIRouter, UploadFile, status
+from fastapi import APIRouter, UploadFile, Query, File, Path, status
 from fastapi.responses import Response, JSONResponse
 
 from src.dependencies import SessionDep, AuthDep
-from src.dto.available_models_list import AvailableModelsList
-from src.dto.last_parsing_time import LastParsingTime
-from src.dto.news_csv_table import NewsCSVTable
-from src.dto.parsers_sites_urls import ParsersSitesUrls
-from src.dto.selected_model_name import SelectedModelName
+from src.responses.available_models_list import AvailableModelsList
+from src.responses.last_parsing_time import LastParsingTime
+from src.responses.news_csv_table import NewsCSVTable
+from src.responses.parsers_sites_urls import ParsersSitesUrls
+from src.responses.selected_model_name import SelectedModelName
 from src.services.parsers_service import remove_parser, add_new_parser
 from src.services.bg_service import start_bg_task
 from src.services.news_service import del_news_by_cluster, generate_csv_table_for_news
 from src.services.summaries_service import create_summary_for_news
 from src.summarizers.utils.model_selection import set_model_by_name
-from src.utils import load_parser_config_example
-
+from src.utils import load_parser_config_example, URL_REGEX
 
 admin_router = APIRouter(
     prefix="/admin",
@@ -29,7 +29,13 @@ admin_router = APIRouter(
     summary="Сгенерировать реферат для новости",
     status_code=status.HTTP_201_CREATED
 )
-async def generate_summary(news_url: str, session: SessionDep) -> Response:
+async def generate_summary(
+        news_url: Annotated[str, Query(
+            description="URL новости из бд",
+            regex=URL_REGEX
+        )],
+        session: SessionDep
+) -> Response:
     await create_summary_for_news(session, news_url)
     return Response(content="Реферат сгенерирован")
 
@@ -57,7 +63,9 @@ def get_selected_model() -> SelectedModelName:
     summary="Выбрать модель",
     status_code=status.HTTP_200_OK
 )
-def set_model(model_name: str) -> Response:
+def set_model(
+        model_name: Annotated[str, Query(description="Название модели")]
+) -> Response:
     set_model_by_name(model_name)
     return Response(content="Модель успешно установлена")
 
@@ -76,7 +84,9 @@ def get_all_parsers() -> ParsersSitesUrls:
     summary="Удалить новостной сайт из парсинга",
     status_code=status.HTTP_200_OK
 )
-def delete_parser(site_url: str) -> Response:
+def delete_parser(
+        site_url: Annotated[str, Query(description="URL главной страницы", regex=URL_REGEX)]
+) -> Response:
     remove_parser(site_url)
     return Response(content="Парсер успешно удален")
 
@@ -86,8 +96,10 @@ def delete_parser(site_url: str) -> Response:
     summary="Загрузить JSON-файл с конфигурацией парсера",
     status_code=status.HTTP_201_CREATED
 )
-def load_parser(file: UploadFile) -> Response:
-    parser_config = json.load(file.file)
+def load_parser(
+        parser_config: Annotated[UploadFile, File(description="JSON файл с конфигурацией парсера")]
+) -> Response:
+    parser_config = json.load(parser_config.file)
     add_new_parser(parser_config)
     return Response(content="Парсер успешно добавлен")
 
@@ -125,7 +137,10 @@ async def get_last_parsing_time() -> LastParsingTime:
     summary="Удалить кластер",
     status_code=status.HTTP_200_OK
 )
-async def delete_cluster(cluster_n: int, session: SessionDep) -> Response:
+async def delete_cluster(
+        cluster_n: Annotated[int, Path(description="Номер кластера")],
+        session: SessionDep
+) -> Response:
     await del_news_by_cluster(session, cluster_n)
     return Response(content="Кластер новостей был успешно удален")
 

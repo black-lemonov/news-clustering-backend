@@ -13,6 +13,7 @@ from src.config import MAX_DF, MIN_DF, EPS, MIN_SAMPLES, SUMM_MODELS_FILEPATHS, 
 from src.database import get_session
 from src.parsers.news_parser import NewsParser
 from src.parsers.parsers_factories import JSONParsersFactory
+from src.responses.pagination import Pagination
 from src.summarizers.base_summarizer import BaseSummarizer
 from src.preprocessing.tfidf_vectorizer import StemmedTfidfVectorizer
 from src.summarizers.model_summarizer import ModelSummarizer
@@ -21,6 +22,7 @@ from src.summarizers.utils.model_selection import get_selected_model_name
 
 
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
+PaginationDep = Annotated[Pagination, Depends(Pagination)]
 
 
 def get_logger() -> Logger:

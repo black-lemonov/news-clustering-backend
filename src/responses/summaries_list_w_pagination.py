@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 from src.dto.summary import SummaryDTO
-from src.dto.pagination import Pagination
+from src.responses.pagination import Pagination
 
 
 class SummariesListWithPagination(BaseModel):

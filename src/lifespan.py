@@ -11,8 +11,7 @@ from src.services.bg_service import start_bg_task
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # nltk.download("stopwords")
     init_logger()
-    # await init_db()
+    await init_db()
     # asyncio.create_task(start_bg_task())
     yield

@@ -29,9 +29,9 @@ async def get_cluster_summary(session: AsyncSession, cluster_n: int) -> Summary 
 
 
 async def get_paginated_summaries(
-        session: AsyncSession,
-        page: int,
-        size: int
+    session: AsyncSession,
+    page: int,
+    size: int
 ) -> list[SummaryDTO]:
     offset = page * size
     query = (

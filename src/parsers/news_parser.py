@@ -72,7 +72,7 @@ class NewsParser:
                     continue
 
                 await self.__save_to_db(
-                    NewsDTO(url, title, content, date)
+                    NewsDTO(url=url, title=title, content=content, date=date)
                 )
                 self.__save_to_buffer()
 
@@ -114,7 +114,7 @@ class NewsParser:
     async def __wait_parse_interval(self):
         await asyncio.sleep(self.__parse_interval_sec)
 
-    async def __try_get_article_content(self, client: httpx.AsyncClient, url: str) -> str:
+    async def __try_get_article_content(self, client: httpx.AsyncClient, url: str) -> str | None:
         try:
             article = (
                 await client.get(url)
