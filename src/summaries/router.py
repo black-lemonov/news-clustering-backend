@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, status, Path, Query
 
 from src.const import URL_REGEX
-from src.deps import PaginationDep, SessionDep
+from src.deps import PaginationDep, SessionDep, AuthDep
 import src.news.service as news_service
 from src.summaries.enums import RateType, RateAction
 from src.summaries.schemas import SummariesListWithPagination, SummaryWithSources, NewsCSVTable
@@ -77,7 +77,8 @@ async def delete_cluster(
 @summaries_router.get(
     "/export",
     summary="Скачать таблицу .csv",
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
+    dependencies=[AuthDep]
 )
 async def export_news_with_summaries(session: SessionDep) -> NewsCSVTable:
     news_csv_table = await news_service.generate_csv_table_for_news(session)

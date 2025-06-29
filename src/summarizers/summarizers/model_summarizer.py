@@ -1,6 +1,6 @@
 from src.clustering.preprocessing.features_extractor import FeaturesExtractor
-from src.summarizers.base_summarizer import BaseSummarizer
-from src.summarizers.model_loader import ModelLoader
+from src.summarizers.summarizers.base_summarizer import BaseSummarizer
+from src.summarizers.model_loaders.model_loader import ModelLoader
 
 
 class ModelSummarizer(BaseSummarizer):

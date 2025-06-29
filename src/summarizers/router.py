@@ -2,13 +2,15 @@ from typing import Annotated
 
 from fastapi import APIRouter, status, Query
 
+from src.deps import AuthDep
 from src.summarizers.schemas import AvailableModelsList, SelectedModelName
 from src.summarizers.service import set_model_by_name
 
 
 summarizers_router = APIRouter(
     prefix="/summarizers",
-    tags=["Модели для реферирования 👾"]
+    tags=["Модели для реферирования 👾"],
+    dependencies=[AuthDep]
 )
 
 
@@ -40,12 +42,3 @@ def set_model(
 ) -> str:
     set_model_by_name(model_name)
     return "Модель успешно установлена"
-
-
-@summarizers_router.get(
-    "/background",
-    summary="Запустить кластеризацию",
-    status_code=status.HTTP_200_OK
-)
-def start_clustering():
-    ...

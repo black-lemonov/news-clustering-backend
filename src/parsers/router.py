@@ -4,6 +4,7 @@ from fastapi import APIRouter, File, UploadFile, status, Query
 from fastapi.responses import JSONResponse
 
 from src.const import URL_REGEX
+from src.deps import AuthDep
 from src.parsers.schemas import LastParsingTime, ParsersSitesUrls
 from src.parsers.service import add_new_parser, remove_parser, run_parsers, update_timer
 from src.parsers.utils import load_parser_config_example
@@ -11,7 +12,8 @@ from src.parsers.utils import load_parser_config_example
 
 parsers_router = APIRouter(
     prefix="/parsers",
-    tags=["Парсеры 🤖"]
+    tags=["Парсеры 🤖"],
+    dependencies=[AuthDep]
 )
 
 
