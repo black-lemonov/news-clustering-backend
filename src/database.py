@@ -3,21 +3,12 @@ from contextlib import asynccontextmanager
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 import asyncio
-from sqlalchemy import URL
 
-from src.config import DB_USERNAME, DB_PASSWORD, DB_NAME, DB_HOST
+from src.config import DB_URL
 from src.models import Base
 
 
-# con_url = URL.create(
-#     "postgresql+asyncpg",
-#     username=DB_USERNAME,
-#     password=DB_PASSWORD,
-#     host=DB_HOST,
-#     database=DB_NAME
-# )
-con_url = "sqlite+aiosqlite:///news.db"
-engine = create_async_engine(con_url)
+engine = create_async_engine(DB_URL)
 session_factory = async_sessionmaker(engine, expire_on_commit=False)
 
 

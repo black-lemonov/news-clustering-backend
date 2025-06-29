@@ -7,9 +7,8 @@ import httpx
 from scrapy import Selector
 
 from src.database import session_scope
-from src.dto.news import NewsDTO
-from src.services.news_service import add_news
-
+from src.news.service import add_news
+from src.parsers.schemas import News
 
 
 class NewsParser:
@@ -72,7 +71,7 @@ class NewsParser:
                     continue
 
                 await self.__save_to_db(
-                    NewsDTO(url=url, title=title, content=content, date=date)
+                    News(url=url, title=title, content=content, date=date)
                 )
                 self.__save_to_buffer()
 
@@ -134,7 +133,7 @@ class NewsParser:
         )
         return res
 
-    async def __save_to_db(self, article: NewsDTO) -> None:
+    async def __save_to_db(self, article: News) -> None:
         async with session_scope() as session:
             add_news(
                 session,

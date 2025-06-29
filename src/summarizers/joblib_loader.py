@@ -1,6 +1,6 @@
 import joblib
 
-from src.summarizers.utils.model_loader import ModelLoader
+from src.summarizers.model_loader import ModelLoader
 
 
 class JoblibLoader(ModelLoader):

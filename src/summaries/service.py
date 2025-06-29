@@ -1,12 +1,12 @@
 from sqlalchemy import select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import HTTPException
 
-from src.dependencies import get_summarizer
-from src.dto.source import Source
-from src.dto.summary import SummaryDTO
-from src.models.news import News
-from src.models.summary import Summary
-from src.services.news_service import get_news_content_by_urls
+import src.summaries.schemas as schemas
+from src.models import News, Summary
+from src.news.service import get_news_content_by_urls
+from src.summaries.enums import RateAction, RateType
+from src.summarizers.deps import get_summarizer
 
 
 async def get_cluster_news_urls(session: AsyncSession, cluster_n: int) -> list[str]:
@@ -32,7 +32,7 @@ async def get_paginated_summaries(
     session: AsyncSession,
     page: int,
     size: int
-) -> list[SummaryDTO]:
+) -> list[schemas.Summary]:
     offset = page * size
     query = (
         select(
@@ -51,7 +51,7 @@ async def get_paginated_summaries(
     summaries = result.all()
 
     return [
-        SummaryDTO(
+        schemas.Summary(
             title=s.title,
             content=s.content,
             created_at=s.published_at,
@@ -61,8 +61,10 @@ async def get_paginated_summaries(
     ]
 
 
-async def get_summary_by_cluster(session: AsyncSession, cluster_n: int) -> SummaryDTO:
-
+async def get_summary_by_cluster(
+        session: AsyncSession,
+        cluster_n: int
+) -> schemas.Summary:
     summary = await session.execute(
         select(News.title, Summary.content, News.published_at, News.cluster_n)
         .join(Summary.news)
@@ -71,7 +73,7 @@ async def get_summary_by_cluster(session: AsyncSession, cluster_n: int) -> Summa
     )
     summary = summary.scalars().first()
 
-    return SummaryDTO(
+    return schemas.Summary(
         title=summary.title,
         content=summary.content,
         created_at=summary.published_at,
@@ -96,7 +98,7 @@ async def get_summary_w_sources(session: AsyncSession, cluster_n: int) -> tuple 
         return None
 
     return summary, [
-        Source(url=row.url, title=row.title)
+        schemas.Source(url=row.url, title=row.title)
         for row in sources_result.all()
     ]
 
@@ -130,4 +132,24 @@ async def create_summary_for_news(session: AsyncSession, news_url: str):
         content=summary
     )
     session.add(summary)
-    
+
+
+async def update_summary_rate(
+        session: AsyncSession,
+        cluster_n: int,
+        rate_field: str,
+        action: RateAction
+) -> None:
+    summary = await get_cluster_summary(session, cluster_n)
+    if not summary:
+        raise HTTPException(status_code=404, detail="Реферат не найден")
+
+    rate_field = "positive_rates" if rate_field == RateType.LIKE else "negative_rates"
+
+    current_value = getattr(summary, rate_field)
+    if action == RateAction.ADD:
+        setattr(summary, rate_field, current_value + 1)
+    elif action == RateAction.REMOVE and current_value > 0:
+        setattr(summary, rate_field, current_value - 1)
+
+    await session.commit()

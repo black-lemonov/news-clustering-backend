@@ -1,0 +1,4 @@
+MAX_DF = 0.7
+MIN_DF = 1
+EPS = 0.86
+MIN_SAMPLES = 1

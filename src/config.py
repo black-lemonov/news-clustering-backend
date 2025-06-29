@@ -1,17 +1,6 @@
-from datetime import timedelta
+import os
 
-from dotenv import load_dotenv
-
-MAX_DF = 0.7
-MIN_DF = 1
-EPS = 0.86
-MIN_SAMPLES = 1
-
-CLUSTER_TTL = timedelta(seconds=10)
-
-PARSING_INTERVAL = 3600
-
-SUMMARY_SIZE = 3
+from sqlalchemy.engine.url import URL
 
 LOG_LEVEL = "DEBUG"
 
@@ -44,17 +33,6 @@ LOGGING_CONFIG = {
     },
 }
 
-SUMM_MODELS_FILEPATHS = {
-    "dt": "ml_models/best_dt.joblib",
-    "dt_smote": "ml_models/best_smote_dt.joblib",
-    "rf": "ml_models/best_rf.joblib",
-    "lgbm": "ml_models/best_lgbm.joblib",
-}
-
-
-load_dotenv(".env")
-import os
-
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
@@ -62,3 +40,12 @@ DB_NAME = os.getenv("DB_NAME")
 DB_HOST = os.getenv("DB_HOST")
 DB_USERNAME = os.getenv("DB_USERNAME")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
+
+# DB_URL = URL.create(
+#     "postgresql+asyncpg",
+#     username=DB_USERNAME,
+#     password=DB_PASSWORD,
+#     host=DB_HOST,
+#     database=DB_NAME
+# )
+DB_URL = "sqlite+aiosqlite:///news.db"

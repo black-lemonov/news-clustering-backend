@@ -7,9 +7,9 @@ from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from src.dto.source import Source
-from src.models.news import News
-from src.utils import load_news_csv_table_headers_from_config
+from src.models import News
+from src.news.utils import load_news_csv_table_headers_from_config
+from src.summaries.schemas import Source
 
 
 async def get_all_news_urls(session: AsyncSession) -> list[str]:
