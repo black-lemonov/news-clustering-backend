@@ -1,14 +1,12 @@
 import json
 from typing import Annotated
-from fastapi import APIRouter, File, UploadFile, status, Query
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, File, UploadFile, status, Query, BackgroundTasks
 
 from src.const import URL_REGEX
 from src.deps import AuthDep
-from src.parsers.schemas import LastParsingTime, ParsersSitesUrls
+from src.parsers.deps import ParsersDep
 from src.parsers.service import add_new_parser, remove_parser, run_parsers, update_timer
-from src.parsers.utils import load_parser_config_example
-
+from src.parsers.utils import load_parser_config_example, load_last_parsing_time_from_config, get_parsers_sites_urls
 
 parsers_router = APIRouter(
     prefix="/parsers",
@@ -23,7 +21,7 @@ parsers_router = APIRouter(
     status_code=status.HTTP_201_CREATED
 )
 def load_parser(
-        parser_config: Annotated[UploadFile, File(description="JSON файл с конфигурацией парсера")]
+        parser_config: Annotated[UploadFile, File(description="JSON файл с конфигурацией парсера")],
 ) -> str:
     parser_config = json.load(parser_config.file)
     add_new_parser(parser_config)
@@ -35,8 +33,8 @@ def load_parser(
     summary="Получить список новостных сайтов для парсинга",
     status_code=status.HTTP_200_OK
 )
-def get_all_parsers() -> ParsersSitesUrls:
-    return ParsersSitesUrls()
+def get_all_parsers() -> list[str]:
+    return get_parsers_sites_urls()
 
 
 @parsers_router.delete(
@@ -45,7 +43,7 @@ def get_all_parsers() -> ParsersSitesUrls:
     status_code=status.HTTP_200_OK
 )
 def delete_parser(
-        site_url: Annotated[str, Query(description="URL главной страницы", regex=URL_REGEX)]
+        site_url: Annotated[str, Query(description="URL главной страницы", regex=URL_REGEX)],
 ) -> str:
     remove_parser(site_url)
     return "Парсер успешно удален"
@@ -56,8 +54,8 @@ def delete_parser(
     summary="Получить шаблон файла конфигурации",
     status_code=status.HTTP_200_OK
 )
-def get_parser_template() -> JSONResponse:
-    return JSONResponse(load_parser_config_example())
+def get_parser_template() -> dict:
+    return load_parser_config_example()
 
 
 @parsers_router.get(
@@ -65,9 +63,12 @@ def get_parser_template() -> JSONResponse:
     summary="Запустить парсинг",
     status_code=status.HTTP_202_ACCEPTED
 )
-async def start_parsers() -> str:
-    await run_parsers()
-    update_timer()
+async def start_parsers(
+        parsers: ParsersDep,
+        bg_tasks: BackgroundTasks
+) -> str:
+    await run_parsers(parsers)
+    bg_tasks.add_task(update_timer)
     return "Парсеры успешно запущены"
 
 
@@ -76,5 +77,5 @@ async def start_parsers() -> str:
     summary="Получить дату последнего парсинга",
     status_code=status.HTTP_200_OK
 )
-async def get_last_parsing_time() -> LastParsingTime:
-    return LastParsingTime()
+async def get_last_parsing_time() -> str:
+    return load_last_parsing_time_from_config()

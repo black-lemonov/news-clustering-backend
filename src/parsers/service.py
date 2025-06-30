@@ -2,7 +2,7 @@ import asyncio
 import json
 from datetime import datetime
 
-from src.parsers.deps import get_parsers
+from src.parsers.news_parser import NewsParser
 
 
 def add_new_parser(parser_config: dict) -> None:
@@ -25,9 +25,9 @@ def remove_parser(site_url: str) -> None:
         json.dump(conf, f)
         
 
-async def run_parsers() -> None:
+async def run_parsers(parsers: list[NewsParser]) -> None:
     await asyncio.gather(
-        *[p.parse() for p in get_parsers()]
+        *[p.parse() for p in parsers]
     )
 
 

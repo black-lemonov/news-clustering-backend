@@ -8,7 +8,7 @@ from scrapy import Selector
 
 from src.database import session_scope
 from src.news.service import add_news
-from src.parsers.schemas import News
+from src.parsers.dto import News
 
 
 class NewsParser:

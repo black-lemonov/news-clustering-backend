@@ -32,7 +32,7 @@ def get_selected_model() -> SelectedModelName:
     return SelectedModelName()
 
 
-@summarizers_router.patch(
+@summarizers_router.put(
     "/selected",
     summary="Выбрать модель",
     status_code=status.HTTP_200_OK

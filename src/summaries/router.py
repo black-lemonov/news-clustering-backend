@@ -45,6 +45,17 @@ async def generate_summary(
 
 
 @summaries_router.get(
+    "/export",
+    summary="Скачать таблицу .csv",
+    status_code=status.HTTP_200_OK,
+    dependencies=[AuthDep]
+)
+async def export_news_with_summaries(session: SessionDep) -> NewsCSVTable:
+    news_csv_table = await news_service.generate_csv_table_for_news(session)
+    return NewsCSVTable(content=news_csv_table)
+
+
+@summaries_router.get(
     "/{cluster_n}",
     summary="Получить реферат по id с источниками",
     status_code=status.HTTP_200_OK
@@ -55,10 +66,7 @@ async def get_summary_w_sources_by_id(
 ) -> SummaryWithSources:
     summary = await summary_service.get_summary_by_cluster(session, cluster_n)
     sources = await news_service.get_news_sources_by_cluster(session, cluster_n)
-
-    return SummaryWithSources.from_summary_w_list(
-        summary, sources=sources
-    )
+    return SummaryWithSources.from_summary_w_list(summary, sources)
 
 
 @summaries_router.delete(
@@ -72,17 +80,6 @@ async def delete_cluster(
 ) -> str:
     await news_service.del_news_by_cluster(session, cluster_n)
     return "Кластер новостей был успешно удален"
-
-
-@summaries_router.get(
-    "/export",
-    summary="Скачать таблицу .csv",
-    status_code=status.HTTP_200_OK,
-    dependencies=[AuthDep]
-)
-async def export_news_with_summaries(session: SessionDep) -> NewsCSVTable:
-    news_csv_table = await news_service.generate_csv_table_for_news(session)
-    return NewsCSVTable(content=news_csv_table)
 
 
 @summaries_router.patch(
@@ -102,5 +99,4 @@ async def update_summary_rate_endpoint(
         rate_type,
         action
     )
-
     return "Оценка успешна установлена"
