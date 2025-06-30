@@ -2,6 +2,8 @@ import os
 
 from sqlalchemy.engine.url import URL
 
+PARSING_INTERVAL = 3600
+
 LOG_LEVEL = "DEBUG"
 
 LOGGING_CONFIG = {

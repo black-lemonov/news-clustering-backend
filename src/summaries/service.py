@@ -1,7 +1,7 @@
 from sqlalchemy import select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import HTTPException
 
+from src.exceptions import NotFoundError
 import src.summaries.schemas as schemas
 from src.models import News, Summary
 from src.news.service import get_news_content_by_urls
@@ -122,10 +122,12 @@ def add_summary(session: AsyncSession, news_url: str, summary: str) -> None:
 
 
 async def create_summary_for_news(session: AsyncSession, news_url: str):
-    content = (await get_news_content_by_urls(session, [news_url]))[0]
+    content = (await get_news_content_by_urls(session, [news_url]))
+    if len(content) == 0:
+        raise NotFoundError("Новость с таким URL не найдена")
 
     summarizer = get_summarizer()
-    summary = summarizer.summarize(content)
+    summary = summarizer.summarize(content[0])
 
     summary = Summary(
         news_url=news_url,
@@ -142,7 +144,7 @@ async def update_summary_rate(
 ) -> None:
     summary = await get_cluster_summary(session, cluster_n)
     if not summary:
-        raise HTTPException(status_code=404, detail="Реферат не найден")
+        raise NotFoundError("Реферат для кластера не найден")
 
     rate_field = "positive_rates" if rate_field == RateType.LIKE else "negative_rates"
 

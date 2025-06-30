@@ -3,7 +3,7 @@ from datetime import datetime
 from fastapi.responses import Response
 from pydantic import BaseModel
 
-from src.pagination import Pagination
+from src.pagination import PaginationResponse
 
 
 class Summary(BaseModel):
@@ -15,13 +15,13 @@ class Summary(BaseModel):
 
 class SummariesListWithPagination(BaseModel):
     summaries: list[Summary]
-    pagination: Pagination
+    pagination: PaginationResponse
 
     @classmethod
     def from_summaries(cls, summaries: list[Summary], page: int, size: int):
         return cls(
             summaries=summaries,
-            pagination=Pagination(page=page, size=size, total=len(summaries))
+            pagination=PaginationResponse(page=page, size=size, total=len(summaries))
         )
 
 

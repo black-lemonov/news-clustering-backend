@@ -1,11 +1,11 @@
 from typing import Annotated
 
-from fastapi import APIRouter, status, Path, Query
+from fastapi import APIRouter, status, Path, Query, HTTPException
 
-from src.const import URL_REGEX
 from src.deps import PaginationDep, SessionDep, AuthDep
 import src.news.service as news_service
 from src.summaries.enums import RateType, RateAction
+from src.exceptions import NotFoundError
 from src.summaries.schemas import SummariesListWithPagination, SummaryWithSources, NewsCSVTable
 import src.summaries.service as summary_service
 
@@ -34,21 +34,22 @@ async def get_all_summaries(
     status_code=status.HTTP_201_CREATED
 )
 async def generate_summary(
-        news_url: Annotated[str, Query(
-            description="URL новости из бд",
-            regex=URL_REGEX
-        )],
+        news_url: Annotated[str, Query(description="URL новости из бд")],
         session: SessionDep
 ) -> str:
-    await summary_service.create_summary_for_news(session, news_url)
-    return "Реферат сгенерирован"
-
+    try:
+        await summary_service.create_summary_for_news(session, news_url)
+        return "Реферат сгенерирован"
+    except NotFoundError as e:
+        raise HTTPException(
+            status_code=e.code,
+            detail=e.msg
+        )
 
 @summaries_router.get(
     "/export",
     summary="Скачать таблицу .csv",
-    status_code=status.HTTP_200_OK,
-    dependencies=[AuthDep]
+    status_code=status.HTTP_200_OK
 )
 async def export_news_with_summaries(session: SessionDep) -> NewsCSVTable:
     news_csv_table = await news_service.generate_csv_table_for_news(session)
@@ -93,10 +94,16 @@ async def update_summary_rate_endpoint(
         action: Annotated[RateAction, Path(description="Тип действия с оценкой", examples=["add", "remove"])],
         session: SessionDep,
 ) -> str:
-    await summary_service.update_summary_rate(
-        session,
-        cluster_n,
-        rate_type,
-        action
-    )
-    return "Оценка успешна установлена"
+    try:
+        await summary_service.update_summary_rate(
+            session,
+            cluster_n,
+            rate_type,
+            action
+        )
+        return "Оценка успешна установлена"
+    except NotFoundError as e:
+        raise HTTPException(
+            status_code=e.code, 
+            detail=e.msg
+        )

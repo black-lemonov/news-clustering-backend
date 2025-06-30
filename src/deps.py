@@ -9,11 +9,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.config import ADMIN_USERNAME, ADMIN_PASSWORD
 from src.database import get_session
-from src.pagination import Pagination
+from src.pagination import PaginationRequest
 
 
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
-PaginationDep = Annotated[Pagination, Depends(Pagination)]
+PaginationDep = Annotated[PaginationRequest, Depends(PaginationRequest)]
 
 
 def get_logger() -> Logger:

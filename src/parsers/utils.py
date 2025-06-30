@@ -1,5 +1,16 @@
 import json
 
+from fastapi import UploadFile
+
+from src.exceptions import WrongFormatError
+
+
+def get_config_from_fastapi_file(upload_file: UploadFile) -> dict:
+    if upload_file.content_type != "application/json":
+        raise WrongFormatError("Файл должен иметь формат json")
+        
+    return json.load(upload_file.file)
+
 
 def get_parsers_sites_urls() -> list[str]:
     with open("application.json") as f:
