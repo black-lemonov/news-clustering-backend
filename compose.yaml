@@ -1,0 +1,8 @@
+include:
+  - infra.yaml
+services:
+  back:
+    container_name: back
+    build: .
+    ports: 
+      - "8000:8000"
