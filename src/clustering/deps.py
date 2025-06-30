@@ -4,7 +4,7 @@ from fastapi import Depends
 from sklearn.cluster import DBSCAN
 from sklearn.pipeline import Pipeline, make_pipeline
 
-from src.clustering.config import MAX_DF, MIN_DF, EPS, MIN_SAMPLES
+from src.clustering.const import MAX_DF, MIN_DF, EPS, MIN_SAMPLES
 from src.clustering.preprocessing.tfidf_vectorizer import StemmedTfidfVectorizer
 
 
