@@ -12,10 +12,16 @@ def get_config_from_fastapi_file(upload_file: UploadFile) -> dict:
     return json.load(upload_file.file)
 
 
-def get_parsers_sites_urls() -> list[str]:
+def get_selected_parsers_sites_urls() -> list[str]:
     with open("application.json") as f:
         conf = json.load(f)
         return conf["selected_sites_urls"]
+    
+
+def get_available_parsers_sites_urls() -> list[str]:
+    with open("application.json") as f:
+        conf = json.load(f)
+        return [p["site_url"] for p in conf["parsers_configs"]]
     
 
 def load_parser_config_example() -> dict:
