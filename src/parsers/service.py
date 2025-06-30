@@ -2,13 +2,10 @@ import asyncio
 import json
 from datetime import datetime
 
-from src.deps import get_logger
 from src.parsers.deps import get_parsers
 
 
 def add_new_parser(parser_config: dict) -> None:
-    logger = get_logger()
-    logger.debug(parser_config)
     with open("application.json") as f:
         conf = json.load(f)
         conf["parsers_configs"].append(parser_config)

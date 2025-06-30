@@ -1,3 +1,6 @@
+from typing import Annotated
+
+from fastapi import Depends
 from sklearn.cluster import DBSCAN
 from sklearn.pipeline import Pipeline, make_pipeline
 
@@ -20,3 +23,5 @@ def get_clustering_model() -> Pipeline:
     return make_pipeline(
         vectorizer, algorithm
     )
+
+ClusteringDep = Annotated[Pipeline, Depends(get_clustering_model)]

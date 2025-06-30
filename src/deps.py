@@ -20,15 +20,23 @@ def get_logger() -> Logger:
     return logging.getLogger("app")
 
 
+LoggerDep = Annotated[Logger, get_logger]
+
+
 def verify_admin(credentials: HTTPBasicCredentials = Security(HTTPBasic())):
-    username_correct = secrets.compare_digest(credentials.username, ADMIN_USERNAME)
-    password_correct = secrets.compare_digest(credentials.password, ADMIN_PASSWORD)
+    try:
+        username_correct = secrets.compare_digest(credentials.username, ADMIN_USERNAME)
+        password_correct = secrets.compare_digest(credentials.password, ADMIN_PASSWORD)
+    except TypeError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Ошибка авторизации: некоторые поля отсутствуют"
+        )
 
     if not (username_correct and password_correct):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Неверные учетные данные",
-            headers={"WWW-Authenticate": "Basic"},
+            detail="Неверные учетные данные"
         )
 
     return credentials.username
