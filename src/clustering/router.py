@@ -2,12 +2,12 @@ from fastapi import APIRouter, status, BackgroundTasks
 
 from src.clustering.deps import ClusteringDep
 from src.clustering.service import make_clusters
-from src.deps import AuthDep, SessionDep
+from src.deps import AuthDep, LoggerDep, SessionDep
 
 clustering_router = APIRouter(
     prefix="/clustering",
     tags=["Кластеризация 👥"],
-    dependencies=[AuthDep]
+    # dependencies=[AuthDep]
 )
 
 @clustering_router.get(
@@ -18,11 +18,10 @@ clustering_router = APIRouter(
 async def start_clustering_in_bg(
         clustering_alg: ClusteringDep,
         session: SessionDep,
-        bg_tasks: BackgroundTasks
+        logger: LoggerDep,
 ) -> str:
-    bg_tasks.add_task(
-        make_clusters,
-    session,
-        clustering_alg
-    )
-    return "Кластеризация запущена"
+    try:
+        await make_clusters(session, clustering_alg)
+        return "Кластеризация запущена"
+    except Exception as e:
+        logger.error("Ошибка при кластеризации: %s", e)

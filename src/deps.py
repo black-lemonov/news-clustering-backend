@@ -20,7 +20,7 @@ def get_logger() -> Logger:
     return logging.getLogger("app")
 
 
-LoggerDep = Annotated[Logger, get_logger]
+LoggerDep = Annotated[Logger, Depends(get_logger)]
 
 
 def verify_admin(credentials: HTTPBasicCredentials = Security(HTTPBasic())):

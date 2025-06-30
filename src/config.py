@@ -1,6 +1,11 @@
 import os
 
+from dotenv import load_dotenv
 from sqlalchemy.engine.url import URL
+
+
+load_dotenv()
+
 
 PARSING_INTERVAL = 3600
 
@@ -38,16 +43,17 @@ LOGGING_CONFIG = {
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
+DB_PORT = os.getenv("DB_PORT")
 DB_NAME = os.getenv("DB_NAME")
 DB_HOST = os.getenv("DB_HOST")
-DB_USERNAME = os.getenv("DB_USERNAME")
+DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
-# DB_URL = URL.create(
-#     "postgresql+asyncpg",
-#     username=DB_USERNAME,
-#     password=DB_PASSWORD,
-#     host=DB_HOST,
-#     database=DB_NAME
-# )
-DB_URL = "sqlite+aiosqlite:///news.db"
+DB_URL = URL.create(
+    "postgresql+asyncpg",
+    username=DB_USER,
+    password=DB_PASSWORD,
+    host=DB_HOST,
+    port=DB_PORT,
+    database=DB_NAME
+)

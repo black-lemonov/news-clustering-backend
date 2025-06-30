@@ -1,6 +1,7 @@
 import asyncio
 from collections import deque
 from datetime import datetime
+from logging import Logger
 
 import dateparser
 import httpx
@@ -36,12 +37,15 @@ class NewsParser:
         self.__articles_buffer: deque[str] = deque(maxlen=self.ARTICLES_BUFFER_SIZE)   # здесь будет очередь из разных новостей
         self.__tmp_buffer: deque[str] = deque(maxlen=self.ARTICLES_BUFFER_SIZE)  # здесь будут все новости с одной страницы
 
+    def set_logger(self, logger: Logger) -> None:
+        self.__logger = logger
+
     async def parse(self) -> None:
-        print("Отправляю запрос к %s ...", self.__site_url)
+        self.__logger.debug("Отправляю запрос к %s ...", self.__site_url)
         async with httpx.AsyncClient() as client:
             articles = await self.__try_get_articles_from_main_page(client)
             if articles is None:
-                print(f"Ничего не запарсено: {self.__site_url} .")
+                self.__logger.debug(f"Ничего не запарсено: {self.__site_url} .")
                 return
 
             for a in articles:
@@ -60,7 +64,7 @@ class NewsParser:
 
                 await self.__wait_parse_interval()
 
-                print("Отправляю запрос к %s ...", self.__site_url)
+                self.__logger.debug("Отправляю запрос к %s ...", self.__site_url)
                 content = await self.__try_get_article_content(client, url)
 
                 if content is None or len(content) < 30:
@@ -82,7 +86,7 @@ class NewsParser:
             ).raise_for_status().text
             return Selector(text=main_page).css(self.__article_selector)
         except httpx.HTTPError as e:
-            print("Ошибка при парсинге %s: %s", self.__site_url, e)
+            self.__logger.debug("Ошибка при парсинге %s: %s", self.__site_url, e)
 
     def __get_url(self, selector) -> str:
         return selector.css(self.__url_selector).get().strip()
@@ -121,7 +125,7 @@ class NewsParser:
             selector = Selector(text=article)
             return self.__get_content(selector)
         except httpx.HTTPError as e:
-            print("Ошибка при парсинге %s: %s", self.__site_url, e)
+            self.__logger.error("Ошибка при парсинге %s: %s", self.__site_url, e)
             self.__clear_tmp_buffer()
 
     def __get_content(self, selector) -> str:
