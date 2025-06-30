@@ -9,7 +9,7 @@ from fastapi import (
 )
 
 from src.exceptions import BaseError
-from src.parsers.service import add_new_parser, move_site_to_selected, remove_site_from_selected, run_parsers, update_timer
+from src.parsers.service import add_new_parser, move_site_to_selected, remove_site_from_selected
 from src.parsers.utils import (
     get_available_parsers_sites_urls,
     get_config_from_fastapi_file,
