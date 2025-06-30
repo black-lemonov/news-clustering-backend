@@ -5,7 +5,6 @@ from src.lifespan import lifespan
 from src.summaries.router import summaries_router
 from src.parsers.router import parsers_router
 from src.summarizers.router import summarizers_router
-from src.clustering.router import clustering_router
 
 
 app = FastAPI(lifespan=lifespan)
@@ -13,7 +12,6 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(summaries_router)
 app.include_router(parsers_router)
 app.include_router(summarizers_router)
-app.include_router(clustering_router)
 
 
 if __name__ == "__main__":

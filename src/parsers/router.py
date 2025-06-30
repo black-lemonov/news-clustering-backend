@@ -1,4 +1,3 @@
-import asyncio
 from typing import Annotated
 from fastapi import (
     APIRouter,
@@ -6,12 +5,10 @@ from fastapi import (
     UploadFile,
     status,
     Query,
-    BackgroundTasks,
     HTTPException,
 )
 
 from src.exceptions import BaseError
-from src.parsers.deps import ParsersDep
 from src.parsers.service import add_new_parser, move_site_to_selected, remove_site_from_selected, run_parsers, update_timer
 from src.parsers.utils import (
     get_available_parsers_sites_urls,
@@ -101,15 +98,6 @@ def remove_site(
 )
 def get_parser_template() -> dict:
     return load_parser_config_example()
-
-
-@parsers_router.get(
-    "/run", summary="Запустить парсинг", status_code=status.HTTP_202_ACCEPTED
-)
-async def start_parsers(parsers: ParsersDep, bg_tasks: BackgroundTasks) -> str:
-    asyncio.create_task(run_parsers(parsers))
-    bg_tasks.add_task(update_timer)
-    return "Парсеры успешно запущены"
 
 
 @parsers_router.get(

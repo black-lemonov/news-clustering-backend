@@ -2,14 +2,15 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from src.database import init_db
 from src.logger import init_logger
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_logger()
-    from src.background.scheduler import bg_scheduler
+    await init_db()
+    from src.bg_tasks.scheduler import bg_scheduler
     bg_scheduler.start()
-    # await init_db()
     yield
     bg_scheduler.shutdown()

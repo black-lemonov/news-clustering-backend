@@ -1,7 +1,7 @@
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from src.background.config import CLUSTERING_JOB_ID, CLUSTERING_JOB_INTERVAL, PARSING_JOB_ID, PARSING_JOB_INTERVAL
-from src.background.jobs import clustering_job, parsing_job
+from src.bg_tasks.config import CLUSTERING_JOB_ID, CLUSTERING_JOB_INTERVAL, PARSING_JOB_ID, PARSING_JOB_INTERVAL
+from src.bg_tasks.jobs import clustering_job, parsing_job
 
 bg_scheduler: AsyncIOScheduler = AsyncIOScheduler()
 bg_scheduler.add_job(
