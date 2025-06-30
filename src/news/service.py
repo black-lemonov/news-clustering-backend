@@ -37,6 +37,7 @@ async def set_cluster_n(
         .where(News.url == news_url)
         .values(cluster_n=cluster_n)
     )
+    await session.commit()
 
 
 def add_news(
