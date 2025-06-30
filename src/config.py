@@ -46,13 +46,12 @@ DB_HOST = os.getenv("DB_HOST")
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
-# DB_URL = URL.create(
-#     "postgresql+asyncpg",
-#     username=DB_USER,
-#     password=DB_PASSWORD,
-#     host=DB_HOST,
-#     port=DB_PORT,
-#     database=DB_NAME
-# )
-
-DB_URL = "sqlite+aiosqlite:///news.db"
+DB_URL = URL.create(
+    "postgresql+asyncpg",
+    username=DB_USER,
+    password=DB_PASSWORD,
+    host=DB_HOST,
+    port=DB_PORT,
+    database=DB_NAME
+)
+# DB_URL = "sqlite+aiosqlite:///news.db"
