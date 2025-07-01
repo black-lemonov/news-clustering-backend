@@ -11,7 +11,6 @@ class PaginationRequest(BaseModel):
 class PaginationResponse(PaginationRequest):
     total: int = Field(
         default_factory=lambda data: (
-            math.ceil(data["total_count"] / data["size"])
-            if data["size"] > 0 else 0
+            math.ceil(data["total_count"] / data["size"]) if data["size"] > 0 else 0
         )
     )

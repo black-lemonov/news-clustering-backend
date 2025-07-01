@@ -21,7 +21,7 @@ class SummariesListWithPagination(BaseModel):
     def from_summaries(cls, summaries: list[Summary], page: int, size: int):
         return cls(
             summaries=summaries,
-            pagination=PaginationResponse(page=page, size=size, total=len(summaries))
+            pagination=PaginationResponse(page=page, size=size, total=len(summaries)),
         )
 
 
@@ -40,14 +40,14 @@ class SummaryWithSources(Summary):
             content=summary.content,
             created_at=summary.created_at,
             cluster_n=summary.cluster_n,
-            news=sources
+            news=sources,
         )
 
 
 class NewsCSVTable(Response):
     table_filename = "news_with_summaries.csv"
-    media_type = "text/csv",
+    media_type = "text/csv"
     headers = {
         "Content-Disposition": f"attachment; filename={table_filename}",
-        "Content-Type": "text/csv; charset=utf-8"
+        "Content-Type": "text/csv; charset=utf-8",
     }

@@ -9,11 +9,11 @@ class StemmedTfidfVectorizer(TfidfVectorizer):
     """
     TF-IDF векторизатор со стеммингом
     """
+
     def build_analyzer(self):
         russian_stemmer = SnowballStemmer("russian")
         stop_words = stopwords.words("russian") + list(punctuation)
         analyzer = super(TfidfVectorizer, self).build_analyzer()
         return lambda doc: (
-            russian_stemmer.stem(w) for w in analyzer(doc)
-            if w not in stop_words
+            russian_stemmer.stem(w) for w in analyzer(doc) if w not in stop_words
         )

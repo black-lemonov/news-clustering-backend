@@ -9,7 +9,11 @@ from fastapi import (
 )
 
 from src.exceptions import BaseError
-from src.parsers.service import add_new_parser, move_site_to_selected, remove_site_from_selected
+from src.parsers.service import (
+    add_new_parser,
+    move_site_to_selected,
+    remove_site_from_selected,
+)
 from src.parsers.utils import (
     get_available_parsers_sites_urls,
     get_config_from_fastapi_file,
@@ -64,7 +68,7 @@ def get_available_sites() -> list[str]:
 @parsers_router.patch(
     "/sites",
     summary="Добавить новостной сайт в парсинг",
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
 )
 def add_site(
     site_url: Annotated[str, Query(description="URL главной страницы")],

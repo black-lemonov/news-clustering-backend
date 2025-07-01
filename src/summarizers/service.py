@@ -9,5 +9,5 @@ def set_model_by_name(model_name: str) -> None:
         if model_name in SUMM_MODELS_FILEPATHS.keys():
             summ_config["selected_model"] = model_name
 
-    with open("application.json", 'w') as f:
+    with open("application.json", "w") as f:
         json.dump(summ_config, f)

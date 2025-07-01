@@ -6,7 +6,11 @@ from src.deps import PaginationDep, SessionDep, AuthDep
 import src.news.service as news_service
 from src.summaries.enums import RateType, RateAction
 from src.exceptions import NotFoundError
-from src.summaries.schemas import SummariesListWithPagination, SummaryWithSources, NewsCSVTable
+from src.summaries.schemas import (
+    SummariesListWithPagination,
+    SummaryWithSources,
+    NewsCSVTable,
+)
 import src.summaries.service as summary_service
 
 
@@ -14,42 +18,35 @@ summaries_router = APIRouter(prefix="/summaries", tags=["Рефераты ✒️
 
 
 @summaries_router.get(
-    "",
-    summary="Получить список всех рефератов",
-    status_code=status.HTTP_200_OK
+    "", summary="Получить список всех рефератов", status_code=status.HTTP_200_OK
 )
 async def get_all_summaries(
-    pagination: PaginationDep,
-    session: SessionDep
+    pagination: PaginationDep, session: SessionDep
 ) -> SummariesListWithPagination:
-    summaries = await summary_service.get_paginated_summaries(session, pagination.page, pagination.size)
+    summaries = await summary_service.get_paginated_summaries(
+        session, pagination.page, pagination.size
+    )
     return SummariesListWithPagination.from_summaries(
         summaries=summaries, page=pagination.page, size=pagination.size
     )
 
 
 @summaries_router.post(
-    "",
-    summary="Сгенерировать реферат для новости",
-    status_code=status.HTTP_201_CREATED
+    "", summary="Сгенерировать реферат для новости", status_code=status.HTTP_201_CREATED
 )
 async def generate_summary(
-        news_url: Annotated[str, Query(description="URL новости из бд")],
-        session: SessionDep
+    news_url: Annotated[str, Query(description="URL новости из бд")],
+    session: SessionDep,
 ) -> str:
     try:
         await summary_service.create_summary_for_news(session, news_url)
         return "Реферат сгенерирован"
     except NotFoundError as e:
-        raise HTTPException(
-            status_code=e.code,
-            detail=e.msg
-        )
+        raise HTTPException(status_code=e.code, detail=e.msg)
+
 
 @summaries_router.get(
-    "/export",
-    summary="Скачать таблицу .csv",
-    status_code=status.HTTP_200_OK
+    "/export", summary="Скачать таблицу .csv", status_code=status.HTTP_200_OK
 )
 async def export_news_with_summaries(session: SessionDep) -> NewsCSVTable:
     news_csv_table = await news_service.generate_csv_table_for_news(session)
@@ -59,11 +56,10 @@ async def export_news_with_summaries(session: SessionDep) -> NewsCSVTable:
 @summaries_router.get(
     "/{cluster_n}",
     summary="Получить реферат по id с источниками",
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
 )
 async def get_summary_w_sources_by_id(
-    cluster_n: Annotated[int, Path(description="Номер кластера")],
-    session: SessionDep
+    cluster_n: Annotated[int, Path(description="Номер кластера")], session: SessionDep
 ) -> SummaryWithSources:
     summary = await summary_service.get_summary_by_cluster(session, cluster_n)
     sources = await news_service.get_news_sources_by_cluster(session, cluster_n)
@@ -71,13 +67,10 @@ async def get_summary_w_sources_by_id(
 
 
 @summaries_router.delete(
-    "/{cluster_n}",
-    summary="Удалить кластер",
-    status_code=status.HTTP_200_OK
+    "/{cluster_n}", summary="Удалить кластер", status_code=status.HTTP_200_OK
 )
 async def delete_cluster(
-        cluster_n: Annotated[int, Path(description="Номер кластера")],
-        session: SessionDep
+    cluster_n: Annotated[int, Path(description="Номер кластера")], session: SessionDep
 ) -> str:
     await news_service.del_news_by_cluster(session, cluster_n)
     return "Кластер новостей был успешно удален"
@@ -86,24 +79,21 @@ async def delete_cluster(
 @summaries_router.patch(
     "/{cluster_n}/{rate_type}/{action}",
     summary="Обновить рейтинг реферата",
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
 )
 async def update_summary_rate_endpoint(
-        cluster_n: Annotated[int, Path(description="Номер кластера")],
-        rate_type: Annotated[RateType, Path(description="Тип оценки", examples=["like", "dislike"])],
-        action: Annotated[RateAction, Path(description="Тип действия с оценкой", examples=["add", "remove"])],
-        session: SessionDep,
+    cluster_n: Annotated[int, Path(description="Номер кластера")],
+    rate_type: Annotated[
+        RateType, Path(description="Тип оценки", examples=["like", "dislike"])
+    ],
+    action: Annotated[
+        RateAction,
+        Path(description="Тип действия с оценкой", examples=["add", "remove"]),
+    ],
+    session: SessionDep,
 ) -> str:
     try:
-        await summary_service.update_summary_rate(
-            session,
-            cluster_n,
-            rate_type,
-            action
-        )
+        await summary_service.update_summary_rate(session, cluster_n, rate_type, action)
         return "Оценка успешна установлена"
     except NotFoundError as e:
-        raise HTTPException(
-            status_code=e.code, 
-            detail=e.msg
-        )
+        raise HTTPException(status_code=e.code, detail=e.msg)

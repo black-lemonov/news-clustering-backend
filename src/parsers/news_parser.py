@@ -17,14 +17,14 @@ class NewsParser:
     ARTICLES_BUFFER_SIZE: int = 30
 
     def __init__(
-            self,
-            site_url: str,
-            article_selector: str,
-            title_selector: str,
-            url_selector: str,
-            date_selector: str,
-            content_selector: str,
-            stop_words: list[str]
+        self,
+        site_url: str,
+        article_selector: str,
+        title_selector: str,
+        url_selector: str,
+        date_selector: str,
+        content_selector: str,
+        stop_words: list[str],
     ) -> None:
         self.__site_url: str = site_url
         self.__article_selector: str = article_selector
@@ -34,8 +34,12 @@ class NewsParser:
         self.__content_selector: str = content_selector
         self.__stop_words: set[str] = set(stop_words)
         self.__parse_interval_sec: float = self.PARSE_INTERVAL
-        self.__articles_buffer: deque[str] = deque(maxlen=self.ARTICLES_BUFFER_SIZE)   # здесь будет очередь из разных новостей
-        self.__tmp_buffer: deque[str] = deque(maxlen=self.ARTICLES_BUFFER_SIZE)  # здесь будут все новости с одной страницы
+        self.__articles_buffer: deque[str] = deque(
+            maxlen=self.ARTICLES_BUFFER_SIZE
+        )  # здесь будет очередь из разных новостей
+        self.__tmp_buffer: deque[str] = deque(
+            maxlen=self.ARTICLES_BUFFER_SIZE
+        )  # здесь будут все новости с одной страницы
 
     def set_logger(self, logger: Logger) -> None:
         self.__logger = logger
@@ -81,9 +85,7 @@ class NewsParser:
 
     async def __try_get_articles_from_main_page(self, client: httpx.AsyncClient):
         try:
-            main_page: str = (
-                await client.get(self.__site_url)
-            ).raise_for_status().text
+            main_page: str = (await client.get(self.__site_url)).raise_for_status().text
             return Selector(text=main_page).css(self.__article_selector)
         except httpx.HTTPError as e:
             self.__logger.debug("Ошибка при парсинге %s: %s", self.__site_url, e)
@@ -112,16 +114,16 @@ class NewsParser:
 
     @staticmethod
     def __format_date(date: str) -> datetime:
-        return dateparser.parse(date, languages=["ru"], settings={'DATE_ORDER': 'DMY'})
+        return dateparser.parse(date, languages=["ru"], settings={"DATE_ORDER": "DMY"})
 
     async def __wait_parse_interval(self):
         await asyncio.sleep(self.__parse_interval_sec)
 
-    async def __try_get_article_content(self, client: httpx.AsyncClient, url: str) -> str | None:
+    async def __try_get_article_content(
+        self, client: httpx.AsyncClient, url: str
+    ) -> str | None:
         try:
-            article = (
-                await client.get(url)
-            ).raise_for_status().text
+            article = (await client.get(url)).raise_for_status().text
             selector = Selector(text=article)
             return self.__get_content(selector)
         except httpx.HTTPError as e:
@@ -132,8 +134,12 @@ class NewsParser:
         selected_content = [
             p.strip() for p in selector.css(self.__content_selector).getall()
         ]
-        res = ' '.join(
-            [text for text in selected_content if len(text) > 25 and "сообщала ранее" not in text]
+        res = " ".join(
+            [
+                text
+                for text in selected_content
+                if len(text) > 25 and "сообщала ранее" not in text
+            ]
         )
         return res
 
@@ -144,7 +150,7 @@ class NewsParser:
                 url=article.url,
                 title=article.title,
                 published_at=article.date,
-                content=article.content
+                content=article.content,
             )
 
     def __save_to_buffer(self) -> None:

@@ -52,6 +52,5 @@ DB_URL = URL.create(
     password=DB_PASSWORD,
     host=DB_HOST,
     port=DB_PORT,
-    database=DB_NAME
+    database=DB_NAME,
 )
-# DB_URL = "sqlite+aiosqlite:///news.db"

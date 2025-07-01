@@ -10,7 +10,7 @@ async def parsing_job():
     logger = get_logger()
     parsers = get_parsers(logger)
     await run_parsers(parsers)
-    
+
 
 async def clustering_job():
     alg = get_clustering_model()

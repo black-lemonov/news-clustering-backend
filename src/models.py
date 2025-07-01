@@ -18,9 +18,7 @@ class News(Base):
     cluster_n: Mapped[int | None]
 
     summary = relationship(
-        "Summary",
-        back_populates="news",
-        cascade="all, delete-orphan"
+        "Summary", back_populates="news", cascade="all, delete-orphan"
     )
 
 
@@ -28,15 +26,10 @@ class Summary(Base):
     __tablename__ = "summary"
 
     news_url: Mapped[str] = mapped_column(
-        ForeignKey("news.url", ondelete="CASCADE", onupdate='CASCADE'),
-        primary_key=True
+        ForeignKey("news.url", ondelete="CASCADE", onupdate="CASCADE"), primary_key=True
     )
     content: Mapped[str]
     positive_rates: Mapped[int] = mapped_column(default=0)
     negative_rates: Mapped[int] = mapped_column(default=0)
 
-    news = relationship(
-        "News",
-        back_populates="summary",
-        single_parent=True
-    )
+    news = relationship("News", back_populates="summary", single_parent=True)

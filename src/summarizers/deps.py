@@ -7,7 +7,6 @@ from src.summarizers.utils import get_selected_model_name
 
 def get_summarizer() -> BaseSummarizer:
     model = ModelSummarizer(
-        SUMM_MODELS_FILEPATHS[get_selected_model_name()],
-        JoblibLoader()
+        SUMM_MODELS_FILEPATHS[get_selected_model_name()], JoblibLoader()
     )
     return model

@@ -7,8 +7,7 @@ from src.parsers.news_parser import NewsParser
 
 class ParsersFactory(ABC):
     @abstractmethod
-    def load_parsers(self, logger: Logger | None = None) -> list[NewsParser]:
-        ...
+    def load_parsers(self, logger: Logger | None = None) -> list[NewsParser]: ...
 
 
 class JSONParsersFactory(ParsersFactory):
