@@ -15,6 +15,12 @@ RUN python -c "import nltk; nltk.download('punkt')"
 RUN python -c "import nltk; nltk.download('stopwords')"
 RUN python -c "import nltk; nltk.download('punkt_tab')"
 
+RUN apt-get update && apt-get install -y supervisor
+
 COPY . ./
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+RUN mkdir -p /var/log/supervisor
+
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
