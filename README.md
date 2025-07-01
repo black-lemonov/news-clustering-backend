@@ -2,5 +2,6 @@
 -
 
 ```sh
-uvicorn src.main:app --reload
+docker compose build
+docker compose up
 ```
