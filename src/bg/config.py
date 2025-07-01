@@ -1,0 +1,20 @@
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+QUEUE_HOST = os.getenv("RABBITMQ_HOST")
+QUEUE_USER = os.getenv("RABBITMQ_DEFAULT_USER")
+QUEUE_PASSWORD = os.getenv("RABBITMQ_DEFAULT_PASS")
+QUEUE_PORT = os.getenv("RABBITMQ_PORT")
+
+QUEUE_URL = f"pyamqp://{QUEUE_USER}:{QUEUE_PASSWORD}@{QUEUE_HOST}:{QUEUE_PORT}"
+TIMEZONE = "Europe/Moscow"
+ENABLE_UTC = True
+QUEUE_BACKEND = None
+
+PARSING_TASK_NAME = "parsing"
+PARSING_TASK_INTERVAL = 3600
+
+CLUSTERING_TASK_NAME = "clustering"
+CLUSTERING_TASK_INTERVAL = 1800
