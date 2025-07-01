@@ -6,3 +6,15 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: password
       POSTGRES_DB: news
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: admin
+    ports:
+      - "5053:5050"
+    depends_on:
+      - postgres
+    environment:
+      - PGADMIN_LISTEN_PORT=5050
+      - PGADMIN_DEFAULT_EMAIL=admin@mail.dev
+      - PGADMIN_DEFAULT_PASSWORD=password
