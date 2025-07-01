@@ -1,8 +1,10 @@
 import asyncio
 import json
 from datetime import datetime
+from logging import Logger
 
 from src.exceptions import AlreadyExistsError, NotFoundError
+from src.parsers.deps import get_parsers
 from src.parsers.news_parser import NewsParser
 from src.parsers.utils import (
     get_available_parsers_sites_urls,
@@ -53,6 +55,11 @@ def remove_site_from_selected(site_url: str) -> None:
 
 
 async def run_parsers(parsers: list[NewsParser]) -> None:
+    await asyncio.gather(*[p.parse() for p in parsers])
+
+
+async def start_parsing(logger: Logger) -> None:
+    parsers = get_parsers(logger)
     await asyncio.gather(*[p.parse() for p in parsers])
 
 

@@ -9,13 +9,11 @@ from scrapy import Selector
 
 from src.database import session_scope
 from src.news.service import add_news
+from src.parsers.config import ARTICLES_BUFFER_SIZE, PARSE_INTERVAL
 from src.parsers.dto import News
 
 
 class NewsParser:
-    PARSE_INTERVAL: float = 10.0
-    ARTICLES_BUFFER_SIZE: int = 30
-
     def __init__(
         self,
         site_url: str,
@@ -33,12 +31,12 @@ class NewsParser:
         self.__date_selector: str = date_selector
         self.__content_selector: str = content_selector
         self.__stop_words: set[str] = set(stop_words)
-        self.__parse_interval_sec: float = self.PARSE_INTERVAL
+        self.__parse_interval_sec: float = PARSE_INTERVAL
         self.__articles_buffer: deque[str] = deque(
-            maxlen=self.ARTICLES_BUFFER_SIZE
+            maxlen=ARTICLES_BUFFER_SIZE
         )  # здесь будет очередь из разных новостей
         self.__tmp_buffer: deque[str] = deque(
-            maxlen=self.ARTICLES_BUFFER_SIZE
+            maxlen=ARTICLES_BUFFER_SIZE
         )  # здесь будут все новости с одной страницы
 
     def set_logger(self, logger: Logger) -> None:
