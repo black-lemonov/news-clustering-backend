@@ -54,3 +54,4 @@ DB_URL = URL.create(
     port=DB_PORT,
     database=DB_NAME,
 )
+ALEMBIC_DB_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
